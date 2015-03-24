@@ -108,6 +108,28 @@ message VectorClock {
     required int64 time = 3;
 }
 
+// Start --- Added by Jainik Vora - March 23  
+message NameValueSet {
+    required string name = 1;
+    required string value = 2;
+}
+
+message DataSet {
+	required string key = 1;
+	required DataSet data_set = 2;
+}
+
+message LogEntry {
+	required DataAction action = 1;
+	required DataSet data = 2;
+	
+	enum DataAction {
+		INSERT = 1;
+		UPDATE = 2;
+	}
+}
+// End --- Added by Jainik Vora - March 23
+
 // lightweight header for internal messages
 message MgmtHeader {  
     required int32 originator = 2;
