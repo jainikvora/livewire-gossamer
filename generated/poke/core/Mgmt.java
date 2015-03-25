@@ -6365,19 +6365,19 @@ public final class Mgmt {
     com.google.protobuf.ByteString
         getKeyBytes();
 
-    // required .DataSet data_set = 2;
+    // required .NameValueSet data_set = 2;
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
     boolean hasDataSet();
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
-    poke.core.Mgmt.DataSet getDataSet();
+    poke.core.Mgmt.NameValueSet getDataSet();
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
-    poke.core.Mgmt.DataSetOrBuilder getDataSetOrBuilder();
+    poke.core.Mgmt.NameValueSetOrBuilder getDataSetOrBuilder();
   }
   /**
    * Protobuf type {@code DataSet}
@@ -6436,11 +6436,11 @@ public final class Mgmt {
               break;
             }
             case 18: {
-              poke.core.Mgmt.DataSet.Builder subBuilder = null;
+              poke.core.Mgmt.NameValueSet.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = dataSet_.toBuilder();
               }
-              dataSet_ = input.readMessage(poke.core.Mgmt.DataSet.PARSER, extensionRegistry);
+              dataSet_ = input.readMessage(poke.core.Mgmt.NameValueSet.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(dataSet_);
                 dataSet_ = subBuilder.buildPartial();
@@ -6531,31 +6531,31 @@ public final class Mgmt {
       }
     }
 
-    // required .DataSet data_set = 2;
+    // required .NameValueSet data_set = 2;
     public static final int DATA_SET_FIELD_NUMBER = 2;
-    private poke.core.Mgmt.DataSet dataSet_;
+    private poke.core.Mgmt.NameValueSet dataSet_;
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
     public boolean hasDataSet() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
-    public poke.core.Mgmt.DataSet getDataSet() {
+    public poke.core.Mgmt.NameValueSet getDataSet() {
       return dataSet_;
     }
     /**
-     * <code>required .DataSet data_set = 2;</code>
+     * <code>required .NameValueSet data_set = 2;</code>
      */
-    public poke.core.Mgmt.DataSetOrBuilder getDataSetOrBuilder() {
+    public poke.core.Mgmt.NameValueSetOrBuilder getDataSetOrBuilder() {
       return dataSet_;
     }
 
     private void initFields() {
       key_ = "";
-      dataSet_ = poke.core.Mgmt.DataSet.getDefaultInstance();
+      dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6724,7 +6724,7 @@ public final class Mgmt {
         key_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         if (dataSetBuilder_ == null) {
-          dataSet_ = poke.core.Mgmt.DataSet.getDefaultInstance();
+          dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
         } else {
           dataSetBuilder_.clear();
         }
@@ -6906,20 +6906,20 @@ public final class Mgmt {
         return this;
       }
 
-      // required .DataSet data_set = 2;
-      private poke.core.Mgmt.DataSet dataSet_ = poke.core.Mgmt.DataSet.getDefaultInstance();
+      // required .NameValueSet data_set = 2;
+      private poke.core.Mgmt.NameValueSet dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          poke.core.Mgmt.DataSet, poke.core.Mgmt.DataSet.Builder, poke.core.Mgmt.DataSetOrBuilder> dataSetBuilder_;
+          poke.core.Mgmt.NameValueSet, poke.core.Mgmt.NameValueSet.Builder, poke.core.Mgmt.NameValueSetOrBuilder> dataSetBuilder_;
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
       public boolean hasDataSet() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
-      public poke.core.Mgmt.DataSet getDataSet() {
+      public poke.core.Mgmt.NameValueSet getDataSet() {
         if (dataSetBuilder_ == null) {
           return dataSet_;
         } else {
@@ -6927,9 +6927,9 @@ public final class Mgmt {
         }
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
-      public Builder setDataSet(poke.core.Mgmt.DataSet value) {
+      public Builder setDataSet(poke.core.Mgmt.NameValueSet value) {
         if (dataSetBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6943,10 +6943,10 @@ public final class Mgmt {
         return this;
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
       public Builder setDataSet(
-          poke.core.Mgmt.DataSet.Builder builderForValue) {
+          poke.core.Mgmt.NameValueSet.Builder builderForValue) {
         if (dataSetBuilder_ == null) {
           dataSet_ = builderForValue.build();
           onChanged();
@@ -6957,14 +6957,14 @@ public final class Mgmt {
         return this;
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
-      public Builder mergeDataSet(poke.core.Mgmt.DataSet value) {
+      public Builder mergeDataSet(poke.core.Mgmt.NameValueSet value) {
         if (dataSetBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              dataSet_ != poke.core.Mgmt.DataSet.getDefaultInstance()) {
+              dataSet_ != poke.core.Mgmt.NameValueSet.getDefaultInstance()) {
             dataSet_ =
-              poke.core.Mgmt.DataSet.newBuilder(dataSet_).mergeFrom(value).buildPartial();
+              poke.core.Mgmt.NameValueSet.newBuilder(dataSet_).mergeFrom(value).buildPartial();
           } else {
             dataSet_ = value;
           }
@@ -6976,11 +6976,11 @@ public final class Mgmt {
         return this;
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
       public Builder clearDataSet() {
         if (dataSetBuilder_ == null) {
-          dataSet_ = poke.core.Mgmt.DataSet.getDefaultInstance();
+          dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
           onChanged();
         } else {
           dataSetBuilder_.clear();
@@ -6989,17 +6989,17 @@ public final class Mgmt {
         return this;
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
-      public poke.core.Mgmt.DataSet.Builder getDataSetBuilder() {
+      public poke.core.Mgmt.NameValueSet.Builder getDataSetBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getDataSetFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
-      public poke.core.Mgmt.DataSetOrBuilder getDataSetOrBuilder() {
+      public poke.core.Mgmt.NameValueSetOrBuilder getDataSetOrBuilder() {
         if (dataSetBuilder_ != null) {
           return dataSetBuilder_.getMessageOrBuilder();
         } else {
@@ -7007,14 +7007,14 @@ public final class Mgmt {
         }
       }
       /**
-       * <code>required .DataSet data_set = 2;</code>
+       * <code>required .NameValueSet data_set = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          poke.core.Mgmt.DataSet, poke.core.Mgmt.DataSet.Builder, poke.core.Mgmt.DataSetOrBuilder> 
+          poke.core.Mgmt.NameValueSet, poke.core.Mgmt.NameValueSet.Builder, poke.core.Mgmt.NameValueSetOrBuilder> 
           getDataSetFieldBuilder() {
         if (dataSetBuilder_ == null) {
           dataSetBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              poke.core.Mgmt.DataSet, poke.core.Mgmt.DataSet.Builder, poke.core.Mgmt.DataSetOrBuilder>(
+              poke.core.Mgmt.NameValueSet, poke.core.Mgmt.NameValueSet.Builder, poke.core.Mgmt.NameValueSetOrBuilder>(
                   dataSet_,
                   getParentForChildren(),
                   isClean());
@@ -7060,6 +7060,16 @@ public final class Mgmt {
      * <code>required .DataSet data = 2;</code>
      */
     poke.core.Mgmt.DataSetOrBuilder getDataOrBuilder();
+
+    // required int32 term = 3;
+    /**
+     * <code>required int32 term = 3;</code>
+     */
+    boolean hasTerm();
+    /**
+     * <code>required int32 term = 3;</code>
+     */
+    int getTerm();
   }
   /**
    * Protobuf type {@code LogEntry}
@@ -7134,6 +7144,11 @@ public final class Mgmt {
                 data_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              term_ = input.readInt32();
               break;
             }
           }
@@ -7296,9 +7311,26 @@ public final class Mgmt {
       return data_;
     }
 
+    // required int32 term = 3;
+    public static final int TERM_FIELD_NUMBER = 3;
+    private int term_;
+    /**
+     * <code>required int32 term = 3;</code>
+     */
+    public boolean hasTerm() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required int32 term = 3;</code>
+     */
+    public int getTerm() {
+      return term_;
+    }
+
     private void initFields() {
       action_ = poke.core.Mgmt.LogEntry.DataAction.INSERT;
       data_ = poke.core.Mgmt.DataSet.getDefaultInstance();
+      term_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7310,6 +7342,10 @@ public final class Mgmt {
         return false;
       }
       if (!hasData()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasTerm()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -7330,6 +7366,9 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, data_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, term_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -7346,6 +7385,10 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, data_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, term_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7472,6 +7515,8 @@ public final class Mgmt {
           dataBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        term_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -7512,6 +7557,10 @@ public final class Mgmt {
         } else {
           result.data_ = dataBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.term_ = term_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7534,6 +7583,9 @@ public final class Mgmt {
         if (other.hasData()) {
           mergeData(other.getData());
         }
+        if (other.hasTerm()) {
+          setTerm(other.getTerm());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -7544,6 +7596,10 @@ public final class Mgmt {
           return false;
         }
         if (!hasData()) {
+          
+          return false;
+        }
+        if (!hasTerm()) {
           
           return false;
         }
@@ -7724,6 +7780,39 @@ public final class Mgmt {
           data_ = null;
         }
         return dataBuilder_;
+      }
+
+      // required int32 term = 3;
+      private int term_ ;
+      /**
+       * <code>required int32 term = 3;</code>
+       */
+      public boolean hasTerm() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required int32 term = 3;</code>
+       */
+      public int getTerm() {
+        return term_;
+      }
+      /**
+       * <code>required int32 term = 3;</code>
+       */
+      public Builder setTerm(int value) {
+        bitField0_ |= 0x00000004;
+        term_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 term = 3;</code>
+       */
+      public Builder clearTerm() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        term_ = 0;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:LogEntry)
@@ -11018,20 +11107,20 @@ public final class Mgmt {
       "ED\020\001\022\020\n\014BALLOTWINNER\020\002\"=\n\013VectorClock\022\017\n" +
       "\007node_id\030\001 \002(\005\022\017\n\007version\030\002 \002(\005\022\014\n\004time\030" +
       "\003 \002(\003\"+\n\014NameValueSet\022\014\n\004name\030\001 \002(\t\022\r\n\005v" +
-      "alue\030\002 \002(\t\"2\n\007DataSet\022\013\n\003key\030\001 \002(\t\022\032\n\010da" +
-      "ta_set\030\002 \002(\0132\010.DataSet\"n\n\010LogEntry\022$\n\006ac",
-      "tion\030\001 \002(\0162\024.LogEntry.DataAction\022\026\n\004data" +
-      "\030\002 \002(\0132\010.DataSet\"$\n\nDataAction\022\n\n\006INSERT" +
-      "\020\001\022\n\n\006UPDATE\020\002\"p\n\nMgmtHeader\022\022\n\noriginat" +
-      "or\030\002 \002(\005\022\024\n\014securityCode\030\003 \002(\005\022\014\n\004time\030\004" +
-      " \002(\003\022\032\n\004path\030\007 \003(\0132\014.VectorClock\022\016\n\006toNo" +
-      "de\030\010 \001(\005\"\350\001\n\nManagement\022\033\n\006header\030\001 \002(\0132" +
-      "\013.MgmtHeader\022\027\n\005graph\030\002 \001(\0132\010.Network\022\030\n" +
-      "\004beat\030\003 \001(\0132\n.Heartbeat\022!\n\010election\030\004 \001(" +
-      "\0132\017.LeaderElection\022#\n\014vote_declare\030\007 \001(\013" +
-      "2\r.VotingBallot\022\036\n\tvote_cast\030\010 \001(\0132\013.Vot",
-      "ingCast\022\"\n\013vote_status\030\t \001(\0132\r.VotingSta" +
-      "tusB\r\n\tpoke.coreH\001"
+      "alue\030\002 \002(\t\"7\n\007DataSet\022\013\n\003key\030\001 \002(\t\022\037\n\010da" +
+      "ta_set\030\002 \002(\0132\r.NameValueSet\"|\n\010LogEntry\022",
+      "$\n\006action\030\001 \002(\0162\024.LogEntry.DataAction\022\026\n" +
+      "\004data\030\002 \002(\0132\010.DataSet\022\014\n\004term\030\003 \002(\005\"$\n\nD" +
+      "ataAction\022\n\n\006INSERT\020\001\022\n\n\006UPDATE\020\002\"p\n\nMgm" +
+      "tHeader\022\022\n\noriginator\030\002 \002(\005\022\024\n\014securityC" +
+      "ode\030\003 \002(\005\022\014\n\004time\030\004 \002(\003\022\032\n\004path\030\007 \003(\0132\014." +
+      "VectorClock\022\016\n\006toNode\030\010 \001(\005\"\350\001\n\nManageme" +
+      "nt\022\033\n\006header\030\001 \002(\0132\013.MgmtHeader\022\027\n\005graph" +
+      "\030\002 \001(\0132\010.Network\022\030\n\004beat\030\003 \001(\0132\n.Heartbe" +
+      "at\022!\n\010election\030\004 \001(\0132\017.LeaderElection\022#\n" +
+      "\014vote_declare\030\007 \001(\0132\r.VotingBallot\022\036\n\tvo",
+      "te_cast\030\010 \001(\0132\013.VotingCast\022\"\n\013vote_statu" +
+      "s\030\t \001(\0132\r.VotingStatusB\r\n\tpoke.coreH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -11097,7 +11186,7 @@ public final class Mgmt {
           internal_static_LogEntry_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_LogEntry_descriptor,
-              new java.lang.String[] { "Action", "Data", });
+              new java.lang.String[] { "Action", "Data", "Term", });
           internal_static_MgmtHeader_descriptor =
             getDescriptor().getMessageTypes().get(10);
           internal_static_MgmtHeader_fieldAccessorTable = new

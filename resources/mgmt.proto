@@ -116,12 +116,13 @@ message NameValueSet {
 
 message DataSet {
 	required string key = 1;
-	required DataSet data_set = 2;
+	required NameValueSet data_set = 2;
 }
 
 message LogEntry {
 	required DataAction action = 1;
 	required DataSet data = 2;
+	required int32 term = 3;
 	
 	enum DataAction {
 		INSERT = 1;
