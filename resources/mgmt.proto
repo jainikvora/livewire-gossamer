@@ -108,7 +108,7 @@ message VectorClock {
     required int64 time = 3;
 }
 
-// Start --- Added by Jainik Vora - March 23  
+// Start --- Added by Jainik Vora
 message NameValueSet {
     required string name = 1;
     required string value = 2;
@@ -129,7 +129,30 @@ message LogEntry {
 		UPDATE = 2;
 	}
 }
-// End --- Added by Jainik Vora - March 23
+
+// add log entry array message
+message LogEntryList {
+	repeated LogEntry entry = 1;
+}
+
+message RaftMessage	{
+	required Action action = 1;
+	required int32 term = 2;
+	optional int64 logCommitIndex = 3;
+	optional LogEntryList entries = 4;
+	optional int32 prevTerm = 5;
+	optional int64 prevLogIndex = 6;
+	
+	enum Action {
+		APPEND = 1;
+		APPENDRESPONSE = 2;
+		REQUESTVOTE = 3;
+		LEADERNOTICE = 4;
+		VOTEGRANTED = 5;
+		VOTEREJECTED = 6;
+	}
+}
+// End --- Added by Jainik Vora
 
 // lightweight header for internal messages
 message MgmtHeader {  
@@ -156,6 +179,9 @@ message Management {
 
    // declare an election for a new leader 
    optional LeaderElection election = 4;
+   
+   // raft message
+   optional RaftMessage raftMessage = 5;
 
    // voting management
    optional VotingBallot vote_declare = 7;
