@@ -24,6 +24,7 @@ import poke.server.managers.ElectionManager;
 import poke.server.managers.HeartbeatManager;
 import poke.server.managers.JobManager;
 import poke.server.managers.NetworkManager;
+import poke.server.managers.RaftManager;
 
 /**
  * The inbound management worker is the cortex for all work related to the
@@ -79,7 +80,10 @@ public class InboundMgmtWorker extends Thread {
 					logger.debug("Inbound management message received");
 
 				Management mgmt = (Management) msg.req;
-				if (mgmt.hasBeat()) {
+				if(mgmt.hasRaftMessage()) {
+					RaftManager.getInstance().processRequest(mgmt);
+				}
+				else if (mgmt.hasBeat()) {
 					/**
 					 * Incoming: this is from a node we requested to create a
 					 * connection (edge) to. In other words, we need to track
@@ -101,10 +105,10 @@ public class InboundMgmtWorker extends Thread {
 					 * cannot allow for each node joining the network to cause a
 					 * leader election.
 					 */
-					ElectionManager.getInstance().assessCurrentState(mgmt);
+					//ElectionManager.getInstance().assessCurrentState(mgmt);
 
 				} else if (mgmt.hasElection()) {
-					ElectionManager.getInstance().processRequest(mgmt);
+					//ElectionManager.getInstance().processRequest(mgmt);
 				} else if (mgmt.hasGraph()) {
 					NetworkManager.getInstance().processRequest(mgmt, msg.channel);
 				} else

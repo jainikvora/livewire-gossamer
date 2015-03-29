@@ -35,12 +35,14 @@ public class BufferedLog implements Loggable{
 	
 	private TreeMap<Long, LogEntry> log;
 	private Long commitIndex;
+	private Long lastApplied;
 	private int thresholdSize = 65536;
 	private String logStoreDir = "./resources/files";
 	
 	public BufferedLog() {
 		log = new TreeMap<Long,LogEntry>();
 		commitIndex = (long) 0;
+		lastApplied = (long) 0;
 	}
 	
 	/**
@@ -265,6 +267,14 @@ public class BufferedLog implements Loggable{
 		}
 		
 		return bufferMap;
+	}
+	
+	public Long getLastApplied() {
+		return lastApplied;
+	}
+
+	public void setLastApplied(Long lastApplied) {
+		this.lastApplied = lastApplied;
 	}
 	
 	// functions written to test file operations

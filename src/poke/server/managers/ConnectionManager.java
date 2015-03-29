@@ -109,7 +109,7 @@ public class ConnectionManager {
 			return;
 
 		for (Channel ch : mgmtConnections.values())
-			ch.write(mgmt);
+			ch.writeAndFlush(mgmt);
 	}
 
 	public static int getNumMgmtConnections() {

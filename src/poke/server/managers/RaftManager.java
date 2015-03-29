@@ -1,21 +1,25 @@
 package poke.server.managers;
 
 import java.beans.Beans;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.GeneratedMessage;
 
 import poke.core.Mgmt.Management;
 import poke.server.conf.ServerConf;
 import poke.server.election.Election;
 import poke.server.election.ElectionListener;
 import poke.server.election.raft.Raft;
+import poke.server.election.raft.Raft.RaftState;
 
 
 public class RaftManager implements ElectionListener{
 	
-	protected static Logger logger = LoggerFactory.getLogger("election");
+	protected static Logger logger = LoggerFactory.getLogger("Raft Manager");
 	protected static AtomicReference<RaftManager> instance = new AtomicReference<RaftManager>();
 
 	private static ServerConf conf;
@@ -28,9 +32,16 @@ public class RaftManager implements ElectionListener{
 	/** The leader */
 	Integer leaderNode;
 	
+	private RaftMonitor monitor =  new RaftMonitor();
+	
+	private int timeOut = getRandomTimeOut();
+	private int sHeartRate = (3* timeOut) / 4;
+	
 	public static RaftManager initManager(ServerConf conf) {
 		RaftManager.conf = conf;
 		instance.compareAndSet(null, new RaftManager());
+		
+		
 		return instance.get();
 	}
 	
@@ -41,6 +52,10 @@ public class RaftManager implements ElectionListener{
 	
 	public Integer whoIsTheLeader() {
 		return this.leaderNode;
+	}
+	
+	public void startMonitor() {
+		monitor.start();
 	}
 	
 	public void startElection() {
@@ -79,7 +94,7 @@ public class RaftManager implements ElectionListener{
 	}
 
 	public void processRequest(Management mgmt) {
-		if (!mgmt.hasElection())
+		if (!mgmt.hasRaftMessage())
 			return;
 
 		//LeaderElection req = mgmt.getElection();
@@ -107,27 +122,17 @@ public class RaftManager implements ElectionListener{
 				return;
 			}
 		}*/
-
+		System.out.println("Raft Manager");
 		Management rtn = electionInstance().process(mgmt);
-		if (rtn != null)
-			ConnectionManager.broadcast(rtn);
-	}
-	
-	/*public void assessCurrentState(Management mgmt) {
-		// logger.info("ElectionManager.assessCurrentState() checking elected leader status");
-
-		if (firstTime > 0 && ConnectionManager.getNumMgmtConnections() > 0) {
-			// give it two tries to get the leader
-			this.firstTime--;
-			askWhoIsTheLeader();
-		} else if (leaderNode == null && (election == null || !election.isElectionInprogress())) {
-			// if this is not an election state, we need to assess the H&S of
-			// the network's leader
-			synchronized (syncPt) {
-				startElection();
+		if (rtn != null) {
+			if(rtn.getHeader().hasToNode()) {
+				ConnectionManager.getConnection(rtn.getHeader().getToNode(), true).writeAndFlush(mgmt);
+			} else {
+				ConnectionManager.broadcast(rtn);
 			}
 		}
-	}*/
+			
+	}
 	
 	@Override
 	public void concludeWith(boolean success, Integer LeaderID) {
@@ -140,74 +145,12 @@ public class RaftManager implements ElectionListener{
 		election.clear();
 	}
 	
-	/*private void respondToWhoIsTheLeader(Management mgmt) {
-		if (this.leaderNode == null) {
-			logger.info("----> I cannot respond to who the leader is! I don't know!");
-			return;
-		}
-
-		logger.info("Node " + conf.getNodeId() + " is replying to " + mgmt.getHeader().getOriginator()
-				+ "'s request who the leader is. Its Node " + this.leaderNode);
-
-		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
-		mhb.setOriginator(conf.getNodeId());
-		mhb.setTime(System.currentTimeMillis());
-
-		VectorClock.Builder rpb = VectorClock.newBuilder();
-		rpb.setNodeId(conf.getNodeId());
-		rpb.setTime(mhb.getTime());
-		rpb.setVersion(electionCycle);
-		mhb.addPath(rpb);
-
-		LeaderElection.Builder elb = LeaderElection.newBuilder();
-		elb.setElectId(electionCycle);
-		elb.setAction(ElectAction.THELEADERIS);
-		elb.setDesc("Node " + this.leaderNode + " is the leader");
-		elb.setCandidateId(this.leaderNode);
-		elb.setExpires(-1);
-
-		Management.Builder mb = Management.newBuilder();
-		mb.setHeader(mhb.build());
-		mb.setElection(elb.build());
-
-		// now send it to the requester
-		logger.info("Election started by node " + conf.getNodeId());
-		try {
-
-			ConnectionManager.getConnection(mgmt.getHeader().getOriginator(), true).write(mb.build());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+	private int getRandomTimeOut() {
+		int max = 5000;
+		int min = 4000;
+		Random randTimeOut = new Random();
+		return randTimeOut.nextInt((max - min) + 1) + min;
 	}
-
-	private void askWhoIsTheLeader() {
-		logger.info("Node " + conf.getNodeId() + " is searching for the leader");
-
-		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
-		mhb.setOriginator(conf.getNodeId());
-		mhb.setTime(System.currentTimeMillis());
-		mhb.setSecurityCode(-999); // TODO add security
-
-		VectorClock.Builder rpb = VectorClock.newBuilder();
-		rpb.setNodeId(conf.getNodeId());
-		rpb.setTime(mhb.getTime());
-		rpb.setVersion(electionCycle);
-		mhb.addPath(rpb);
-
-		LeaderElection.Builder elb = LeaderElection.newBuilder();
-		elb.setElectId(-1);
-		elb.setAction(ElectAction.WHOISTHELEADER);
-		elb.setDesc("Node " + this.leaderNode + " is asking who the leader is");
-		elb.setCandidateId(-1);
-		elb.setExpires(-1);
-
-		Management.Builder mb = Management.newBuilder();
-		mb.setHeader(mhb.build());
-		mb.setElection(elb.build());
-
-		// now send it to the requester
-		ConnectionManager.broadcast(mb.build());
-	}*/
 
 	private Election electionInstance() {
 		if (election == null) {
@@ -223,15 +166,14 @@ public class RaftManager implements ElectionListener{
 				try {
 					election = (Election) Beans.instantiate(this.getClass().getClassLoader(), clazz);
 					election.setNodeId(conf.getNodeId());
-					((Raft) election).setTotalNodes(conf.getAdjacent().getAdjacentNodes().size());
 					election.setListener(this);
 
 					// this sucks - bad coding here! should use configuration
 					// properties
 					if (election instanceof Raft) {
-						logger.warn("Node " + conf.getNodeId() + " setting max hops to arbitrary value (4)");
+						logger.warn("Node " + conf.getNodeId() + " starting Raft with total nodes " + conf.getAdjacent().getAdjacentNodes().size());
 						//((FloodMaxElection) election).setMaxHops(4);
-						
+						((Raft) election).setTotalNodes(conf.getAdjacent().getAdjacentNodes().size() + 1);	
 					}
 
 				} catch (Exception e) {
@@ -239,9 +181,49 @@ public class RaftManager implements ElectionListener{
 				}
 			}
 		}
-
 		return election;
-
 	}
-
+	
+	public class RaftMonitor extends Thread {
+		boolean forever = true;
+		
+		public RaftMonitor() {
+			
+		}
+		
+		@Override
+		public void run() {
+			while(forever) {
+				try {
+					Thread.sleep(sHeartRate);
+					
+					if(((Raft)electionInstance()).getCurrentState() == Raft.RaftState.Leader) {
+						sendAppendRequest();
+					} else {
+						long lastKnownBeat = ((Raft)electionInstance()).getLastKnownBeat();
+						long now = System.currentTimeMillis();
+						if((now - lastKnownBeat) >= timeOut) {
+							sendRequestVoteNotice();
+						}
+					}
+					
+				} catch (InterruptedException ie) {
+					break;
+				} catch (Exception e) {
+					logger.error("Unexpected management communcation failure", e);
+					break;
+				}
+			}	
+		}
+	}
+	
+	private void sendRequestVoteNotice() {
+		Management mgt = ((Raft)electionInstance()).getRequestVoteNotice();
+		ConnectionManager.broadcast(mgt);
+	}
+		
+	private void sendAppendRequest() {
+		Management mgt = ((Raft)electionInstance()).getAppendRequest();
+		ConnectionManager.broadcast(mgt);
+	}
 }
