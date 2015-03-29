@@ -8586,6 +8586,16 @@ public final class Mgmt {
      * <code>optional int64 prevLogIndex = 6;</code>
      */
     long getPrevLogIndex();
+
+    // optional bool responseFlag = 7;
+    /**
+     * <code>optional bool responseFlag = 7;</code>
+     */
+    boolean hasResponseFlag();
+    /**
+     * <code>optional bool responseFlag = 7;</code>
+     */
+    boolean getResponseFlag();
   }
   /**
    * Protobuf type {@code RaftMessage}
@@ -8682,6 +8692,11 @@ public final class Mgmt {
               prevLogIndex_ = input.readInt64();
               break;
             }
+            case 56: {
+              bitField0_ |= 0x00000040;
+              responseFlag_ = input.readBool();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -8743,13 +8758,9 @@ public final class Mgmt {
        */
       LEADERNOTICE(3, 4),
       /**
-       * <code>VOTEGRANTED = 5;</code>
+       * <code>VOTE = 5;</code>
        */
-      VOTEGRANTED(4, 5),
-      /**
-       * <code>VOTEREJECTED = 6;</code>
-       */
-      VOTEREJECTED(5, 6),
+      VOTE(4, 5),
       ;
 
       /**
@@ -8769,13 +8780,9 @@ public final class Mgmt {
        */
       public static final int LEADERNOTICE_VALUE = 4;
       /**
-       * <code>VOTEGRANTED = 5;</code>
+       * <code>VOTE = 5;</code>
        */
-      public static final int VOTEGRANTED_VALUE = 5;
-      /**
-       * <code>VOTEREJECTED = 6;</code>
-       */
-      public static final int VOTEREJECTED_VALUE = 6;
+      public static final int VOTE_VALUE = 5;
 
 
       public final int getNumber() { return value; }
@@ -8786,8 +8793,7 @@ public final class Mgmt {
           case 2: return APPENDRESPONSE;
           case 3: return REQUESTVOTE;
           case 4: return LEADERNOTICE;
-          case 5: return VOTEGRANTED;
-          case 6: return VOTEREJECTED;
+          case 5: return VOTE;
           default: return null;
         }
       }
@@ -8942,6 +8948,22 @@ public final class Mgmt {
       return prevLogIndex_;
     }
 
+    // optional bool responseFlag = 7;
+    public static final int RESPONSEFLAG_FIELD_NUMBER = 7;
+    private boolean responseFlag_;
+    /**
+     * <code>optional bool responseFlag = 7;</code>
+     */
+    public boolean hasResponseFlag() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional bool responseFlag = 7;</code>
+     */
+    public boolean getResponseFlag() {
+      return responseFlag_;
+    }
+
     private void initFields() {
       action_ = poke.core.Mgmt.RaftMessage.Action.APPEND;
       term_ = 0;
@@ -8949,6 +8971,7 @@ public final class Mgmt {
       entries_ = poke.core.Mgmt.LogEntryList.getDefaultInstance();
       prevTerm_ = 0;
       prevLogIndex_ = 0L;
+      responseFlag_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -8994,6 +9017,9 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeInt64(6, prevLogIndex_);
       }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBool(7, responseFlag_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -9026,6 +9052,10 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(6, prevLogIndex_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(7, responseFlag_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -9160,6 +9190,8 @@ public final class Mgmt {
         bitField0_ = (bitField0_ & ~0x00000010);
         prevLogIndex_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000020);
+        responseFlag_ = false;
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -9216,6 +9248,10 @@ public final class Mgmt {
           to_bitField0_ |= 0x00000020;
         }
         result.prevLogIndex_ = prevLogIndex_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.responseFlag_ = responseFlag_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -9249,6 +9285,9 @@ public final class Mgmt {
         }
         if (other.hasPrevLogIndex()) {
           setPrevLogIndex(other.getPrevLogIndex());
+        }
+        if (other.hasResponseFlag()) {
+          setResponseFlag(other.getResponseFlag());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -9572,6 +9611,39 @@ public final class Mgmt {
       public Builder clearPrevLogIndex() {
         bitField0_ = (bitField0_ & ~0x00000020);
         prevLogIndex_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // optional bool responseFlag = 7;
+      private boolean responseFlag_ ;
+      /**
+       * <code>optional bool responseFlag = 7;</code>
+       */
+      public boolean hasResponseFlag() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional bool responseFlag = 7;</code>
+       */
+      public boolean getResponseFlag() {
+        return responseFlag_;
+      }
+      /**
+       * <code>optional bool responseFlag = 7;</code>
+       */
+      public Builder setResponseFlag(boolean value) {
+        bitField0_ |= 0x00000040;
+        responseFlag_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool responseFlag = 7;</code>
+       */
+      public Builder clearResponseFlag() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        responseFlag_ = false;
         onChanged();
         return this;
       }
@@ -13147,24 +13219,24 @@ public final class Mgmt {
       "$\n\006action\030\001 \002(\0162\024.LogEntry.DataAction\022\026\n" +
       "\004data\030\002 \002(\0132\010.DataSet\022\014\n\004term\030\003 \002(\005\"$\n\nD" +
       "ataAction\022\n\n\006INSERT\020\001\022\n\n\006UPDATE\020\002\"(\n\014Log" +
-      "EntryList\022\030\n\005entry\030\001 \003(\0132\t.LogEntry\"\220\002\n\013" +
+      "EntryList\022\030\n\005entry\030\001 \003(\0132\t.LogEntry\"\215\002\n\013" +
       "RaftMessage\022#\n\006action\030\001 \002(\0162\023.RaftMessag" +
       "e.Action\022\014\n\004term\030\002 \002(\005\022\026\n\016logCommitIndex" +
       "\030\003 \001(\003\022\036\n\007entries\030\004 \001(\0132\r.LogEntryList\022\020" +
-      "\n\010prevTerm\030\005 \001(\005\022\024\n\014prevLogIndex\030\006 \001(\003\"n" +
-      "\n\006Action\022\n\n\006APPEND\020\001\022\022\n\016APPENDRESPONSE\020\002" +
-      "\022\017\n\013REQUESTVOTE\020\003\022\020\n\014LEADERNOTICE\020\004\022\017\n\013V",
-      "OTEGRANTED\020\005\022\020\n\014VOTEREJECTED\020\006\"p\n\nMgmtHe" +
-      "ader\022\022\n\noriginator\030\002 \002(\005\022\024\n\014securityCode" +
-      "\030\003 \002(\005\022\014\n\004time\030\004 \002(\003\022\032\n\004path\030\007 \003(\0132\014.Vec" +
-      "torClock\022\016\n\006toNode\030\010 \001(\005\"\213\002\n\nManagement\022" +
-      "\033\n\006header\030\001 \002(\0132\013.MgmtHeader\022\027\n\005graph\030\002 " +
-      "\001(\0132\010.Network\022\030\n\004beat\030\003 \001(\0132\n.Heartbeat\022" +
-      "!\n\010election\030\004 \001(\0132\017.LeaderElection\022!\n\013ra" +
-      "ftMessage\030\005 \001(\0132\014.RaftMessage\022#\n\014vote_de" +
-      "clare\030\007 \001(\0132\r.VotingBallot\022\036\n\tvote_cast\030" +
-      "\010 \001(\0132\013.VotingCast\022\"\n\013vote_status\030\t \001(\0132",
-      "\r.VotingStatusB\r\n\tpoke.coreH\001"
+      "\n\010prevTerm\030\005 \001(\005\022\024\n\014prevLogIndex\030\006 \001(\003\022\024" +
+      "\n\014responseFlag\030\007 \001(\010\"U\n\006Action\022\n\n\006APPEND" +
+      "\020\001\022\022\n\016APPENDRESPONSE\020\002\022\017\n\013REQUESTVOTE\020\003\022",
+      "\020\n\014LEADERNOTICE\020\004\022\010\n\004VOTE\020\005\"p\n\nMgmtHeade" +
+      "r\022\022\n\noriginator\030\002 \002(\005\022\024\n\014securityCode\030\003 " +
+      "\002(\005\022\014\n\004time\030\004 \002(\003\022\032\n\004path\030\007 \003(\0132\014.Vector" +
+      "Clock\022\016\n\006toNode\030\010 \001(\005\"\213\002\n\nManagement\022\033\n\006" +
+      "header\030\001 \002(\0132\013.MgmtHeader\022\027\n\005graph\030\002 \001(\013" +
+      "2\010.Network\022\030\n\004beat\030\003 \001(\0132\n.Heartbeat\022!\n\010" +
+      "election\030\004 \001(\0132\017.LeaderElection\022!\n\013raftM" +
+      "essage\030\005 \001(\0132\014.RaftMessage\022#\n\014vote_decla" +
+      "re\030\007 \001(\0132\r.VotingBallot\022\036\n\tvote_cast\030\010 \001" +
+      "(\0132\013.VotingCast\022\"\n\013vote_status\030\t \001(\0132\r.V",
+      "otingStatusB\r\n\tpoke.coreH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -13242,7 +13314,7 @@ public final class Mgmt {
           internal_static_RaftMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_RaftMessage_descriptor,
-              new java.lang.String[] { "Action", "Term", "LogCommitIndex", "Entries", "PrevTerm", "PrevLogIndex", });
+              new java.lang.String[] { "Action", "Term", "LogCommitIndex", "Entries", "PrevTerm", "PrevLogIndex", "ResponseFlag", });
           internal_static_MgmtHeader_descriptor =
             getDescriptor().getMessageTypes().get(12);
           internal_static_MgmtHeader_fieldAccessorTable = new

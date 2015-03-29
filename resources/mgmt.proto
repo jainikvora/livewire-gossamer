@@ -142,14 +142,14 @@ message RaftMessage	{
 	optional LogEntryList entries = 4;
 	optional int32 prevTerm = 5;
 	optional int64 prevLogIndex = 6;
+	optional bool responseFlag = 7;
 	
 	enum Action {
 		APPEND = 1;
 		APPENDRESPONSE = 2;
 		REQUESTVOTE = 3;
 		LEADERNOTICE = 4;
-		VOTEGRANTED = 5;
-		VOTEREJECTED = 6;
+		VOTE = 5;
 	}
 }
 // End --- Added by Jainik Vora
