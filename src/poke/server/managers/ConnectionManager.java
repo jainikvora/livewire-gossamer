@@ -55,7 +55,6 @@ public class ConnectionManager {
 	}
 
 	public static Channel getConnection(Integer nodeId, boolean isMgmt) {
-
 		if (isMgmt)
 			return mgmtConnections.get(nodeId);
 		else
@@ -109,7 +108,31 @@ public class ConnectionManager {
 			return;
 
 		for (Channel ch : mgmtConnections.values())
+			ch.write(mgmt);
+	}
+	
+	public synchronized static void broadcastAndFlush(Request req) {
+		if (req == null)
+			return;
+
+		for (Channel ch : connections.values())
+			ch.writeAndFlush(req);
+	}
+	
+	public synchronized static void broadcastAndFlush(Management mgmt) {
+		if (mgmt == null)
+			return;
+
+		for (Channel ch : mgmtConnections.values())
 			ch.writeAndFlush(mgmt);
+	}
+	
+	public static void sendToNode(Integer nodeId, Management mgmt) {
+		getConnection(nodeId, true).writeAndFlush(mgmt);
+	}
+	
+	public static void sendToNode(Integer nodeId, Request req) {
+		getConnection(nodeId, false).writeAndFlush(req);
 	}
 
 	public static int getNumMgmtConnections() {
