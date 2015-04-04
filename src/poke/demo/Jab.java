@@ -33,11 +33,8 @@ public class Jab {
 		this.tag = tag;
 	}
 
-	public void run() {
-		ClientCommand cc = new ClientCommand("localhost", 5570);
-		CommListener listener = new ClientPrintListener("jab demo");
-		cc.addListener(listener);
-
+	public void run(ClientCommand cc) {
+		
 		for (int i = 0; i < 3; i++) {
 			count++;
 			cc.poke(tag, count);
@@ -46,12 +43,21 @@ public class Jab {
 
 	public static void main(String[] args) {
 		try {
-			Jab jab = new Jab("jab");
-			jab.run();
+			ClientCommand cc = new ClientCommand("localhost", 5570);
+			CommListener listener = new ClientPrintListener("jab demo");
+			cc.addListener(listener);
+			int counter =0;
 
+			Jab jab = new Jab("jab");
+			while(true){
+				counter++;
+			jab.run(cc);
+			if(counter>5)break;
+			Thread.sleep(10000);
+			}
 			// we are running asynchronously
-			System.out.println("\nExiting in 5 seconds");
-			Thread.sleep(5000);
+			System.out.println("\nExiting in 150 seconds");
+			Thread.sleep(150000);
 			System.exit(0);
 
 		} catch (Exception e) {

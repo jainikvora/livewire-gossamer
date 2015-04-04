@@ -216,6 +216,8 @@ message Payload {
     // replies only
     optional JobStatus job_status = 13;
     optional NameSpaceStatus space_status = 12;
+    
+    optional Registration registration = 14;
    
     // TBD
     // reports
@@ -224,4 +226,11 @@ message Payload {
 message Request {
     required Header header = 1;
     required Payload body = 2;
+}
+
+message Registration{
+
+	required string clientID = 1;
+	optional string message = 2;
+
 }

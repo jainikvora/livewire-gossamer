@@ -38,6 +38,14 @@ public class CommHandler extends SimpleChannelInboundHandler<Request> {
 	public CommHandler() {
 	}
 
+	public Channel getChannel() {
+		return channel;
+	}
+
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+	}
+
 	/**
 	 * messages pass through this method. We use a blackbox design as much as
 	 * possible to ensure we can replace the underlining communication without
@@ -46,11 +54,14 @@ public class CommHandler extends SimpleChannelInboundHandler<Request> {
 	 * @param msg
 	 * @return
 	 */
-	public boolean send(GeneratedMessage msg) {
+	public boolean send(GeneratedMessage msg,Channel channel) {
 		// TODO a queue is needed to prevent overloading of the socket
 		// connection. For the demonstration, we don't need it
-		ChannelFuture cf = channel.write(msg);
+		System.out.println("Sending message from commHanndler..");
+		ChannelFuture cf = channel.writeAndFlush(msg);
+		
 		if (cf.isDone() && !cf.isSuccess()) {
+			System.out.println("Message not sent in CommHandler....");
 			logger.error("failed to poke!");
 			return false;
 		}

@@ -116,15 +116,18 @@ public class CommConnection {
 		group = new NioEventLoopGroup();
 		try {
 			handler = new CommHandler();
+			CommInitializer ci = new CommInitializer(handler,false);
 			Bootstrap b = new Bootstrap();
-			b.group(group).channel(NioSocketChannel.class).handler(handler);
+			b.group(group).channel(NioSocketChannel.class).handler(ci);
 			b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
 			b.option(ChannelOption.TCP_NODELAY, true);
 			b.option(ChannelOption.SO_KEEPALIVE, true);
-
+		
 			// Make the connection attempt.
 			channel = b.connect(host, port).syncUninterruptibly();
-
+			System.out.println(channel.isSuccess());
+			System.out.println("channel established");
+			
 			// want to monitor the connection to the server s.t. if we loose the
 			// connection, we can try to re-establish it.
 			ClientClosedListener ccl = new ClientClosedListener(this);
@@ -151,8 +154,9 @@ public class CommConnection {
 			init();
 		}
 
-		if (channel.isDone() && channel.isSuccess())
+		if (channel.isDone() && channel.isSuccess()){
 			return channel.channel();
+		}
 		else
 			throw new RuntimeException("Not able to establish connection to server");
 	}
@@ -178,7 +182,9 @@ public class CommConnection {
 		@Override
 		public void run() {
 			Channel ch = conn.connect();
+			System.out.println("Channel in commConnection -- "+ch);
 			if (ch == null || !ch.isOpen()) {
+				
 				CommConnection.logger.error("connection missing, no outbound communication");
 				return;
 			}
@@ -192,16 +198,19 @@ public class CommConnection {
 					GeneratedMessage msg = conn.outbound.take();
 					if (ch.isWritable()) {
 						CommHandler handler = conn.connect().pipeline().get(CommHandler.class);
-
-						if (!handler.send(msg))
+						System.out.println("Sending message ....");
+						if (!handler.send(msg,ch)){
 							conn.outbound.putFirst(msg);
+							}
 
 					} else
 						conn.outbound.putFirst(msg);
 				} catch (InterruptedException ie) {
+					System.out.println("InterruptedException");
 					break;
 				} catch (Exception e) {
 					CommConnection.logger.error("Unexpected communcation failure", e);
+					System.out.println("Unexpected communcation failure");
 					break;
 				}
 			}
