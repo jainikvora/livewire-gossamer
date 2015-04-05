@@ -200,7 +200,18 @@ message Header {
         JOBS = 4;
         REPORTS = 10;
         MANAGE = 100;
+        SNAP = 5;
         }
+}
+
+
+message SnapMsg {							//Image must be .png files
+
+required string reqId = 1;
+required bytes image = 2;
+required string caption = 3;
+
+
 }
 
 // these are commands from external (and possible internal) clients
@@ -218,7 +229,7 @@ message Payload {
     optional NameSpaceStatus space_status = 12;
     
     optional Registration registration = 14;
-   
+    optional SnapMsg SnapMsg = 15;
     // TBD
     // reports
 }
