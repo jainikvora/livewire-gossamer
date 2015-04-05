@@ -6378,6 +6378,21 @@ public final class Mgmt {
      * <code>required .NameValueSet data_set = 2;</code>
      */
     poke.core.Mgmt.NameValueSetOrBuilder getDataSetOrBuilder();
+
+    // required string client_id = 3;
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    boolean hasClientId();
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    java.lang.String getClientId();
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getClientIdBytes();
   }
   /**
    * Protobuf type {@code DataSet}
@@ -6446,6 +6461,11 @@ public final class Mgmt {
                 dataSet_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              clientId_ = input.readBytes();
               break;
             }
           }
@@ -6553,9 +6573,53 @@ public final class Mgmt {
       return dataSet_;
     }
 
+    // required string client_id = 3;
+    public static final int CLIENT_ID_FIELD_NUMBER = 3;
+    private java.lang.Object clientId_;
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    public boolean hasClientId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    public java.lang.String getClientId() {
+      java.lang.Object ref = clientId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          clientId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string client_id = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getClientIdBytes() {
+      java.lang.Object ref = clientId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        clientId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       key_ = "";
       dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
+      clientId_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6567,6 +6631,10 @@ public final class Mgmt {
         return false;
       }
       if (!hasDataSet()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasClientId()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -6587,6 +6655,9 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, dataSet_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getClientIdBytes());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -6603,6 +6674,10 @@ public final class Mgmt {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, dataSet_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getClientIdBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6729,6 +6804,8 @@ public final class Mgmt {
           dataSetBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        clientId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -6769,6 +6846,10 @@ public final class Mgmt {
         } else {
           result.dataSet_ = dataSetBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.clientId_ = clientId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6793,6 +6874,11 @@ public final class Mgmt {
         if (other.hasDataSet()) {
           mergeDataSet(other.getDataSet());
         }
+        if (other.hasClientId()) {
+          bitField0_ |= 0x00000004;
+          clientId_ = other.clientId_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -6803,6 +6889,10 @@ public final class Mgmt {
           return false;
         }
         if (!hasDataSet()) {
+          
+          return false;
+        }
+        if (!hasClientId()) {
           
           return false;
         }
@@ -7021,6 +7111,80 @@ public final class Mgmt {
           dataSet_ = null;
         }
         return dataSetBuilder_;
+      }
+
+      // required string client_id = 3;
+      private java.lang.Object clientId_ = "";
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public boolean hasClientId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public java.lang.String getClientId() {
+        java.lang.Object ref = clientId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          clientId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getClientIdBytes() {
+        java.lang.Object ref = clientId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          clientId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public Builder setClientId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        clientId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public Builder clearClientId() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        clientId_ = getDefaultInstance().getClientId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string client_id = 3;</code>
+       */
+      public Builder setClientIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        clientId_ = value;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:DataSet)
@@ -8754,9 +8918,9 @@ public final class Mgmt {
        */
       REQUESTVOTE(2, 3),
       /**
-       * <code>LEADERNOTICE = 4;</code>
+       * <code>CLIENTREQUEST = 4;</code>
        */
-      LEADERNOTICE(3, 4),
+      CLIENTREQUEST(3, 4),
       /**
        * <code>VOTE = 5;</code>
        */
@@ -8776,9 +8940,9 @@ public final class Mgmt {
        */
       public static final int REQUESTVOTE_VALUE = 3;
       /**
-       * <code>LEADERNOTICE = 4;</code>
+       * <code>CLIENTREQUEST = 4;</code>
        */
-      public static final int LEADERNOTICE_VALUE = 4;
+      public static final int CLIENTREQUEST_VALUE = 4;
       /**
        * <code>VOTE = 5;</code>
        */
@@ -8792,7 +8956,7 @@ public final class Mgmt {
           case 1: return APPEND;
           case 2: return APPENDRESPONSE;
           case 3: return REQUESTVOTE;
-          case 4: return LEADERNOTICE;
+          case 4: return CLIENTREQUEST;
           case 5: return VOTE;
           default: return null;
         }
@@ -13214,29 +13378,30 @@ public final class Mgmt {
       "ED\020\001\022\020\n\014BALLOTWINNER\020\002\"=\n\013VectorClock\022\017\n" +
       "\007node_id\030\001 \002(\005\022\017\n\007version\030\002 \002(\005\022\014\n\004time\030" +
       "\003 \002(\003\"+\n\014NameValueSet\022\014\n\004name\030\001 \002(\t\022\r\n\005v" +
-      "alue\030\002 \002(\t\"7\n\007DataSet\022\013\n\003key\030\001 \002(\t\022\037\n\010da" +
-      "ta_set\030\002 \002(\0132\r.NameValueSet\"|\n\010LogEntry\022",
-      "$\n\006action\030\001 \002(\0162\024.LogEntry.DataAction\022\026\n" +
-      "\004data\030\002 \002(\0132\010.DataSet\022\014\n\004term\030\003 \002(\005\"$\n\nD" +
-      "ataAction\022\n\n\006INSERT\020\001\022\n\n\006UPDATE\020\002\"(\n\014Log" +
-      "EntryList\022\030\n\005entry\030\001 \003(\0132\t.LogEntry\"\215\002\n\013" +
-      "RaftMessage\022#\n\006action\030\001 \002(\0162\023.RaftMessag" +
-      "e.Action\022\014\n\004term\030\002 \002(\005\022\026\n\016logCommitIndex" +
-      "\030\003 \001(\003\022\036\n\007entries\030\004 \001(\0132\r.LogEntryList\022\020" +
-      "\n\010prevTerm\030\005 \001(\005\022\024\n\014prevLogIndex\030\006 \001(\003\022\024" +
-      "\n\014responseFlag\030\007 \001(\010\"U\n\006Action\022\n\n\006APPEND" +
-      "\020\001\022\022\n\016APPENDRESPONSE\020\002\022\017\n\013REQUESTVOTE\020\003\022",
-      "\020\n\014LEADERNOTICE\020\004\022\010\n\004VOTE\020\005\"p\n\nMgmtHeade" +
-      "r\022\022\n\noriginator\030\002 \002(\005\022\024\n\014securityCode\030\003 " +
-      "\002(\005\022\014\n\004time\030\004 \002(\003\022\032\n\004path\030\007 \003(\0132\014.Vector" +
-      "Clock\022\016\n\006toNode\030\010 \001(\005\"\213\002\n\nManagement\022\033\n\006" +
-      "header\030\001 \002(\0132\013.MgmtHeader\022\027\n\005graph\030\002 \001(\013" +
-      "2\010.Network\022\030\n\004beat\030\003 \001(\0132\n.Heartbeat\022!\n\010" +
-      "election\030\004 \001(\0132\017.LeaderElection\022!\n\013raftM" +
-      "essage\030\005 \001(\0132\014.RaftMessage\022#\n\014vote_decla" +
-      "re\030\007 \001(\0132\r.VotingBallot\022\036\n\tvote_cast\030\010 \001" +
-      "(\0132\013.VotingCast\022\"\n\013vote_status\030\t \001(\0132\r.V",
-      "otingStatusB\r\n\tpoke.coreH\001"
+      "alue\030\002 \002(\t\"J\n\007DataSet\022\013\n\003key\030\001 \002(\t\022\037\n\010da" +
+      "ta_set\030\002 \002(\0132\r.NameValueSet\022\021\n\tclient_id",
+      "\030\003 \002(\t\"|\n\010LogEntry\022$\n\006action\030\001 \002(\0162\024.Log" +
+      "Entry.DataAction\022\026\n\004data\030\002 \002(\0132\010.DataSet" +
+      "\022\014\n\004term\030\003 \002(\005\"$\n\nDataAction\022\n\n\006INSERT\020\001" +
+      "\022\n\n\006UPDATE\020\002\"(\n\014LogEntryList\022\030\n\005entry\030\001 " +
+      "\003(\0132\t.LogEntry\"\216\002\n\013RaftMessage\022#\n\006action" +
+      "\030\001 \002(\0162\023.RaftMessage.Action\022\014\n\004term\030\002 \002(" +
+      "\005\022\026\n\016logCommitIndex\030\003 \001(\003\022\036\n\007entries\030\004 \001" +
+      "(\0132\r.LogEntryList\022\020\n\010prevTerm\030\005 \001(\005\022\024\n\014p" +
+      "revLogIndex\030\006 \001(\003\022\024\n\014responseFlag\030\007 \001(\010\"" +
+      "V\n\006Action\022\n\n\006APPEND\020\001\022\022\n\016APPENDRESPONSE\020",
+      "\002\022\017\n\013REQUESTVOTE\020\003\022\021\n\rCLIENTREQUEST\020\004\022\010\n" +
+      "\004VOTE\020\005\"p\n\nMgmtHeader\022\022\n\noriginator\030\002 \002(" +
+      "\005\022\024\n\014securityCode\030\003 \002(\005\022\014\n\004time\030\004 \002(\003\022\032\n" +
+      "\004path\030\007 \003(\0132\014.VectorClock\022\016\n\006toNode\030\010 \001(" +
+      "\005\"\213\002\n\nManagement\022\033\n\006header\030\001 \002(\0132\013.MgmtH" +
+      "eader\022\027\n\005graph\030\002 \001(\0132\010.Network\022\030\n\004beat\030\003" +
+      " \001(\0132\n.Heartbeat\022!\n\010election\030\004 \001(\0132\017.Lea" +
+      "derElection\022!\n\013raftMessage\030\005 \001(\0132\014.RaftM" +
+      "essage\022#\n\014vote_declare\030\007 \001(\0132\r.VotingBal" +
+      "lot\022\036\n\tvote_cast\030\010 \001(\0132\013.VotingCast\022\"\n\013v",
+      "ote_status\030\t \001(\0132\r.VotingStatusB\r\n\tpoke." +
+      "coreH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -13296,7 +13461,7 @@ public final class Mgmt {
           internal_static_DataSet_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_DataSet_descriptor,
-              new java.lang.String[] { "Key", "DataSet", });
+              new java.lang.String[] { "Key", "DataSet", "ClientId", });
           internal_static_LogEntry_descriptor =
             getDescriptor().getMessageTypes().get(9);
           internal_static_LogEntry_fieldAccessorTable = new

@@ -117,6 +117,7 @@ message NameValueSet {
 message DataSet {
 	required string key = 1;
 	required NameValueSet data_set = 2;
+	required string client_id = 3;
 }
 
 message LogEntry {
@@ -148,7 +149,7 @@ message RaftMessage	{
 		APPEND = 1;
 		APPENDRESPONSE = 2;
 		REQUESTVOTE = 3;
-		LEADERNOTICE = 4;
+		CLIENTREQUEST = 4; 
 		VOTE = 5;
 	}
 }
