@@ -18,6 +18,7 @@ package poke.server.managers;
 import io.netty.channel.Channel;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,5 +138,12 @@ public class ConnectionManager {
 
 	public static int getNumMgmtConnections() {
 		return mgmtConnections.size();
+	}
+	
+	public static Set<Integer> getConnectedNodeSet(boolean isMgmt) {
+		if(isMgmt)
+			return mgmtConnections.keySet();
+		else
+			return connections.keySet();
 	}
 }

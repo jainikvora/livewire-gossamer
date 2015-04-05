@@ -2,6 +2,8 @@ package poke.server.election.raft.log;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 /**
@@ -20,8 +22,35 @@ public class BufferedLogTest {
 	
 	@Test
 	public void testTestFileParsing() {
-		BufferedLog bl = new BufferedLog();
-		bl.testFileParsing();
+		//BufferedLog bl = new BufferedLog();
+		//bl.testFileParsing();
+		
+		ArrayList<Long> list = new ArrayList<Long>();
+		list.add((long)5);
+		list.add((long)6);
+		list.add((long)8);
+		list.add((long)5);
+		list.add((long)9);
+		//list.addAll(new Array(){5,6,8,5,9});
+		
+		int occurence = 0;
+		boolean majority = false;
+		long N = 9;
+		
+		while(N > 4 && !majority) {
+			for(Long index : list) {
+				if(index >= N)
+					occurence += 1;
+			}
+			if(occurence > 5/2) {
+				majority = true;
+			} else {
+				N -= 1;
+				occurence = 0;
+			}
+		}
+		
+		System.out.println(N);
 	}
 	
 /*	@Test

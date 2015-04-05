@@ -1,12 +1,14 @@
 package poke.server.managers;
 
 import java.beans.Beans;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import poke.core.Mgmt.DataSet;
 import poke.core.Mgmt.Management;
 import poke.server.conf.ServerConf;
 import poke.server.election.Election;
@@ -60,9 +62,6 @@ public class RaftManager implements ElectionListener {
 			if (rtn != null) {
 				// if toNode is present in header, send point-to-point msg
 				if (rtn.getHeader().hasToNode()) {
-					/*ConnectionManager.getConnection(
-							rtn.getHeader().getToNode(), true).writeAndFlush(
-							rtn);*/
 					ConnectionManager.sendToNode(rtn.getHeader().getToNode(), rtn);
 
 				} else {
@@ -106,10 +105,10 @@ public class RaftManager implements ElectionListener {
 					if (election instanceof Raft) {
 						logger.warn("Node " + conf.getNodeId()
 								+ " starting Raft with total nodes "
-								+ conf.getAdjacent().getAdjacentNodes().size());
+								+ (HeartbeatManager.getInstance().outgoingHB.size() + 1));
 						// ((FloodMaxElection) election).setMaxHops(4);
-						((Raft) election).setTotalNodes(conf.getAdjacent()
-								.getAdjacentNodes().size() + 1);
+						((Raft) election).setTotalNodes(HeartbeatManager.getInstance().outgoingHB.size() + 1);
+						//logger.info("Current nodes in system: " + HeartbeatManager.getInstance().outgoingHB.size());
 					}
 
 				} catch (Exception e) {
@@ -132,6 +131,7 @@ public class RaftManager implements ElectionListener {
 			while (forever) {
 				try {
 					Thread.sleep(sHeartRate);
+					updateNodeCount();
 					if (((Raft) electionInstance()).getState() instanceof LeaderState) {
 						sendAppendRequest();
 					} else {
@@ -155,11 +155,37 @@ public class RaftManager implements ElectionListener {
 
 	private void sendRequestVoteNotice() {
 		Management mgt = ((Raft) electionInstance()).getRequestVoteNotice();
-		ConnectionManager.broadcastAndFlush(mgt);
+		// if only one node in the network
+		if(((Raft) electionInstance()).hasWonElection()) {
+			mgt = ((Raft) electionInstance()).declareLeader();
+		}
+		ConnectionManager.broadcastAndFlush(mgt); 
 	}
 
 	private void sendAppendRequest() {
 		Management mgt = ((Raft) electionInstance()).getAppendRequest();
 		ConnectionManager.broadcastAndFlush(mgt);
+	}
+	
+	private void updateNodeCount() {
+		int totalNodes = HeartbeatManager.getInstance().outgoingHB.size() + 1;
+		if(totalNodes  != ((Raft) electionInstance()).getTotalNodes()) {
+			((Raft) electionInstance()).setTotalNodes(totalNodes);
+		}
+	}
+	
+	public boolean appendEntry(DataSet data, boolean isInsert) {
+		if(isInsert){
+			return ((Raft) electionInstance()).appendLogEntry(data, isInsert);
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public void sendAppendRequest(Map<Integer, Management> appendRequests) {
+		for(Integer nodeId : appendRequests.keySet()) {
+			ConnectionManager.sendToNode(nodeId, appendRequests.get(nodeId));
+		}
 	}
 }

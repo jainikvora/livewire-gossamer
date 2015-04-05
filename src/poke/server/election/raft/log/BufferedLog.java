@@ -102,7 +102,7 @@ public class BufferedLog implements Loggable{
 
 	@Override
 	public long lastIndex() {
-		return log.lastKey();
+		return size() > 0 ? log.lastKey() : 0;
 	}
 
 	/**
@@ -115,6 +115,9 @@ public class BufferedLog implements Loggable{
 	 */
 	@Override
 	public LogEntry getEntry(long index) {
+		if(index < 1)
+			return null;
+		
 		if(index < firstIndex()) {
 			TreeMap<Long, LogEntry> fileLogMap = retrieveLogSegment(index, index+1);
 			return fileLogMap.get(index);
@@ -132,6 +135,9 @@ public class BufferedLog implements Loggable{
 	 * @return LogEntry[] - array of log entries in order from startIndex to lastIndex
 	 */
 	public LogEntry[] getEntries(long startIndex) {
+		if(startIndex < 1)
+			return null;
+		
 		int size = (int) (lastIndex() - startIndex)+1;
 		LogEntry[] entries = new LogEntry[size];
 		int i = 0;
@@ -153,6 +159,23 @@ public class BufferedLog implements Loggable{
 	}
 	
 	/**
+	 * Remove all the entries from log starting with startIndex to
+	 * lastIndex
+	 * @param startIndex
+	 */
+	public void removeEntry(long startIndex) {
+		if(startIndex < 1)
+			return;
+		
+		if(startIndex < firstIndex()) {
+			log.clear();
+			log.putAll(removeLogSegment(startIndex));
+		}
+		for(long i = startIndex; i <= lastIndex(); i++)
+			log.remove(i);		
+	}
+	
+	/**
 	 * Increment the commit index by given integer.
 	 * @param i
 	 * @return long - updated commitIndex
@@ -168,6 +191,14 @@ public class BufferedLog implements Loggable{
 	 */
 	public long getCommitIndex() {
 		return commitIndex;
+	}
+	
+	/**
+	 * Set commitIndex to passed value
+	 * @param commitIndex
+	 */
+	public void setCommitIndex(Long commitIndex) {
+		this.commitIndex = commitIndex;
 	}
 	
 	// storing logs in file when size exceeds the limit
@@ -237,7 +268,7 @@ public class BufferedLog implements Loggable{
 				int fileLastIndex = Integer.parseInt(file.getName().split("_")[1]);
 				int fileStartIndex = fileLastIndex - thresholdSize + 1;
 				
-				if(fileLastIndex > startIndex) {
+				if(fileLastIndex >= startIndex) {
 					ObjectInputStream oi = new ObjectInputStream(new FileInputStream(file));
 					if(fileStartIndex < startIndex) {
 						tmpMap = (TreeMap<Long, LogEntry>)oi.readObject();
@@ -267,6 +298,40 @@ public class BufferedLog implements Loggable{
 		}
 		
 		return bufferMap;
+	}
+	
+	public TreeMap<Long, LogEntry> removeLogSegment(long startIndex) {
+		File dir = new File(logStoreDir);
+		File[] logFiles = dir.listFiles();
+		TreeMap<Long, LogEntry> tmpMap = new TreeMap<Long, LogEntry>();
+		
+		try{
+			for(File file: logFiles) {
+				int fileLastIndex = Integer.parseInt(file.getName().split("_")[1]);
+				int fileStartIndex = fileLastIndex - thresholdSize + 1;
+				
+				if(fileLastIndex >= startIndex) {
+					ObjectInputStream oi = new ObjectInputStream(new FileInputStream(file));
+					if(fileStartIndex <= startIndex) {
+						tmpMap = (TreeMap<Long, LogEntry>)oi.readObject();
+						file.delete();
+					} else {
+						file.delete();
+					}
+					oi.close();
+				} else {
+					continue;
+				}
+			}
+			
+		} catch(IOException e) {
+			//logger.error(e.getMessage());
+			System.out.println(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			//logger.error(e.getMessage());
+			System.out.println(e.getMessage());
+		}
+		return tmpMap;
 	}
 	
 	public Long getLastApplied() {
