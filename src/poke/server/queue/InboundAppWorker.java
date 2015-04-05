@@ -60,10 +60,14 @@ public class InboundAppWorker extends Thread {
 				// block until a message is enqueued
 				GeneratedMessage msg = sq.inbound.take();
 
+				//logger.info(msg.toString());
+				//logger.info("Inbound worker got the request!!");
 				// process request and enqueue response
 				if (msg instanceof Request) {
 					Request req = ((Request) msg);
-
+					
+					//logger.info("Send req is" + req.toString());
+					//logger.info("Req header is " + req.getHeader());
 					// HEY! if you find yourself here and are tempted to add
 					// code to process state or requests then you are in the
 					// WRONG place! This is a general routing class, all
@@ -90,6 +94,7 @@ public class InboundAppWorker extends Thread {
 					}
 
 					if (reply != null)
+						logger.info("Got reply and sending it to client!!");
 						sq.enqueueResponse(reply, null);
 				}
 

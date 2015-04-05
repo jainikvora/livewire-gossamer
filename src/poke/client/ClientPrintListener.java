@@ -45,6 +45,9 @@ public class ClientPrintListener implements CommListener {
 
 	@Override
 	public void onMessage(Request msg) {
+		
+		System.out.println("Received ping message from server!!");
+		
 		if (logger.isDebugEnabled())
 			ClientUtil.printHeader(msg.getHeader());
 

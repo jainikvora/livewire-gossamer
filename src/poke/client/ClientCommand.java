@@ -15,8 +15,17 @@
  */
 package poke.client;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.base64.Base64;
+
+import java.io.File;
+
+import org.h2.store.fs.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.primitives.Bytes;
+import com.google.protobuf.ByteString;
 
 import poke.client.comm.CommConnection;
 import poke.client.comm.CommListener;
@@ -24,6 +33,7 @@ import poke.comm.App.Header;
 import poke.comm.App.Payload;
 import poke.comm.App.Ping;
 import poke.comm.App.Request;
+import poke.comm.App.SnapMsg;
 
 /**
  * The command class is the concrete implementation of the functionality of our
@@ -69,6 +79,42 @@ public class ClientCommand {
 	 * @param tag
 	 * @param num
 	 */
+    
+	public void sendImage(String reqId, String caption, ByteString images) {
+		
+		// data to send				
+		SnapMsg.Builder snp = SnapMsg.newBuilder();
+		snp.setCaption(caption);
+		snp.setReqId(reqId);
+		snp.setImage(images);
+				
+			
+		// payload containing data
+		Request.Builder r = Request.newBuilder();
+		Payload.Builder p = Payload.newBuilder();
+		p.setSnapMsg(snp.build());
+		r.setBody(p.build());
+
+		// header with routing info
+		Header.Builder h = Header.newBuilder();
+		h.setOriginator(1000);
+		h.setTag("first Image");
+		
+		h.setTime(System.currentTimeMillis());
+		h.setRoutingId(Header.Routing.SNAP);
+		r.setHeader(h.build());
+
+		Request req = r.build();	  
+
+		try {
+			comm.sendMessage(req);
+		} catch (Exception e) {
+			logger.warn("Unable to deliver message, queuing");
+		}
+	}
+	
+	
+	
 	public void poke(String tag, int num) {
 		// data to send
 		Ping.Builder f = Ping.newBuilder();

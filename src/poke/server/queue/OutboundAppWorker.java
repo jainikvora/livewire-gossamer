@@ -36,14 +36,16 @@ public class OutboundAppWorker extends Thread {
 		this.sq = sq;
 
 		if (sq.outbound == null)
-			throw new RuntimeException("connection worker detected no outbound queue");
+			throw new RuntimeException(
+					"connection worker detected no outbound queue");
 	}
 
 	@Override
 	public void run() {
 		Channel conn = sq.channel;
 		if (conn == null || !conn.isOpen()) {
-			PerChannelQueue.logger.error("connection missing, no outbound communication");
+			PerChannelQueue.logger
+					.error("connection missing, no outbound communication");
 			return;
 		}
 
@@ -56,18 +58,25 @@ public class OutboundAppWorker extends Thread {
 				GeneratedMessage msg = sq.outbound.take();
 				if (conn.isWritable()) {
 					boolean rtn = false;
-					if (sq.channel != null && sq.channel.isOpen() && sq.channel.isWritable()) {
+					if (sq.channel != null && sq.channel.isOpen()
+							&& sq.channel.isWritable()) {
 						ChannelFuture cf = sq.channel.write(msg);
 
 						// blocks on write - use listener to be async
 						cf.awaitUninterruptibly();
 						rtn = cf.isSuccess();
-						if (!rtn)
+						if (!rtn) {
+							logger.info("Putting message to outbound queue!!");
 							sq.outbound.putFirst(msg);
+
+						}
 					}
 
-				} else
+				} else {
+					logger.info("Putting message to outbound queue!!");
 					sq.outbound.putFirst(msg);
+				}
+
 			} catch (InterruptedException ie) {
 				break;
 			} catch (Exception e) {
