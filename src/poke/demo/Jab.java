@@ -35,10 +35,10 @@ public class Jab {
 
 	public void run(ClientCommand cc) {
 		
-		for (int i = 0; i < 3; i++) {
+		//for (int i = 0; i < 3; i++) {
 			count++;
 			cc.poke(tag, count);
-		}
+		//}
 	}
 
 	public static void main(String[] args) {
