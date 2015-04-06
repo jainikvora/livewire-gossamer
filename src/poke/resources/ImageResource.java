@@ -43,9 +43,9 @@ public class ImageResource implements ClientResource {
 		clusterMap = new HashMap<Integer, ClientInfo>();
 	}
 	
-	public ImageResource getInstance(){
+	public static ImageResource getInstance(){
 		if(imageResource==null)
-			this.imageResource= new ImageResource();
+			imageResource= new ImageResource();
 			
 			return imageResource;
 	}
