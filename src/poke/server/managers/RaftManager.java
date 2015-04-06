@@ -1,6 +1,7 @@
 package poke.server.managers;
 
 import java.beans.Beans;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,8 +9,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.core.Mgmt.DataSet;
 import poke.core.Mgmt.Management;
+import poke.resources.data.MgmtResponse;
 import poke.server.conf.ServerConf;
 import poke.server.election.Election;
 import poke.server.election.ElectionListener;
@@ -48,10 +49,17 @@ public class RaftManager implements ElectionListener {
 		return ((Raft) electionInstance()).getLeaderId();
 	}
 
+	/**
+	 * Starts the monitor thread
+	 */
 	public void startMonitor() {
 		monitor.start();
 	}
 
+	/**
+	 * Process raftMessage and sends the response message
+	 * @param mgmt
+	 */
 	public void processRequest(Management mgmt) {
 		if (!mgmt.hasRaftMessage())
 			return;
@@ -59,6 +67,7 @@ public class RaftManager implements ElectionListener {
 		if (mgmt.getHeader().getOriginator() != ((Raft) electionInstance())
 				.getNodeId()) {
 			Management rtn = electionInstance().process(mgmt);
+			
 			if (rtn != null) {
 				// if toNode is present in header, send point-to-point msg
 				if (rtn.getHeader().hasToNode()) {
@@ -76,6 +85,11 @@ public class RaftManager implements ElectionListener {
 
 	}
 
+	/**
+	 * Get timeOut period randomly chosen between
+	 * min and max milliseconds
+	 * @return
+	 */
 	private int getRandomTimeOut() {
 		int max = 5000;
 		int min = 4000;
@@ -106,9 +120,8 @@ public class RaftManager implements ElectionListener {
 						logger.warn("Node " + conf.getNodeId()
 								+ " starting Raft with total nodes "
 								+ (HeartbeatManager.getInstance().outgoingHB.size() + 1));
-						// ((FloodMaxElection) election).setMaxHops(4);
+						
 						((Raft) election).setTotalNodes(HeartbeatManager.getInstance().outgoingHB.size() + 1);
-						//logger.info("Current nodes in system: " + HeartbeatManager.getInstance().outgoingHB.size());
 					}
 
 				} catch (Exception e) {
@@ -119,12 +132,15 @@ public class RaftManager implements ElectionListener {
 		return election;
 	}
 
+	/**
+	 * Monitor thread sends heartbeat messages to followers if
+	 * currentState is Leader.
+	 * 
+	 * if timeOut period elapses without a heartbeat, initiate
+	 * election
+	 */
 	public class RaftMonitor extends Thread {
 		boolean forever = true;
-
-		public RaftMonitor() {
-
-		}
 
 		@Override
 		public void run() {
@@ -153,6 +169,9 @@ public class RaftManager implements ElectionListener {
 		}
 	}
 
+	/**
+	 * Send requestVote notices to all other nodes
+	 */
 	private void sendRequestVoteNotice() {
 		Management mgt = ((Raft) electionInstance()).getRequestVoteNotice();
 		// if only one node in the network
@@ -162,11 +181,29 @@ public class RaftManager implements ElectionListener {
 		ConnectionManager.broadcastAndFlush(mgt); 
 	}
 
+	/**
+	 * Send appendRequest/Heartbeat to all followers - broadcast
+	 */
 	private void sendAppendRequest() {
 		Management mgt = ((Raft) electionInstance()).getAppendRequest();
 		ConnectionManager.broadcastAndFlush(mgt);
 	}
 	
+	/**
+	 * Send appendRequest to every node - point to point
+	 * @param appendRequests
+	 */
+	public void sendAppendRequest(Map<Integer, Management> appendRequests) {
+		for(Integer nodeId : appendRequests.keySet()) {
+			if(appendRequests.get(nodeId) != null)
+				ConnectionManager.sendToNode(nodeId, appendRequests.get(nodeId));
+		}
+	}
+	
+	/**
+	 * Check if new nodes are connected in network. 
+	 * If yes, update total node count 
+	 */
 	private void updateNodeCount() {
 		int totalNodes = HeartbeatManager.getInstance().outgoingHB.size() + 1;
 		if(totalNodes  != ((Raft) electionInstance()).getTotalNodes()) {
@@ -174,18 +211,25 @@ public class RaftManager implements ElectionListener {
 		}
 	}
 	
-	public boolean appendEntry(DataSet data, boolean isInsert) {
-		if(isInsert){
-			return ((Raft) electionInstance()).appendLogEntry(data, isInsert);
-		}
-		else {
-			return false;
+	/**
+	 * Send a Management msg to specified nodeId
+	 * @param nodeId
+	 * @param msg
+	 */
+	public void sendMgmtRequest(Integer nodeId, Management msg) {
+		if(msg != null) {
+			ConnectionManager.sendToNode(nodeId, msg);
 		}
 	}
 	
-	public void sendAppendRequest(Map<Integer, Management> appendRequests) {
-		for(Integer nodeId : appendRequests.keySet()) {
-			ConnectionManager.sendToNode(nodeId, appendRequests.get(nodeId));
-		}
+	/**
+	 * Retrieve List of DataSets from log from startIndex to lastIndex
+	 * @param startIndex
+	 * @return
+	 */
+	public List<MgmtResponse> getDataSetFromIndex(long startIndex) {
+		return ((Raft) electionInstance()).getDataSetFromLog(startIndex);
 	}
+	
+	
 }

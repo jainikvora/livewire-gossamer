@@ -1,8 +1,10 @@
 package poke.server.election.raft;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -17,6 +19,7 @@ import poke.core.Mgmt.LogEntryList;
 import poke.core.Mgmt.Management;
 import poke.core.Mgmt.MgmtHeader;
 import poke.core.Mgmt.RaftMessage;
+import poke.resources.data.MgmtResponse;
 import poke.server.election.Election;
 import poke.server.election.ElectionListener;
 import poke.server.election.raft.log.BufferedLog;
@@ -27,6 +30,12 @@ import poke.server.election.raft.state.RaftState;
 import poke.server.managers.ConnectionManager;
 import poke.server.managers.RaftManager;
 
+/**
+ * 
+ * Raft Election to ensure re-election when a leader fails and 
+ * Log Replication to keep system consistent  
+ *
+ */
 public class Raft implements Election {
 	protected static Logger logger = LoggerFactory.getLogger("raft");
 
@@ -50,7 +59,10 @@ public class Raft implements Election {
 	int totalNodes = 1;
 	BufferedLog log; // also includes commitIndex and lastApplied
 	ElectionListener listener;
+	
+	// stores the next logIndex to send to each follower
 	TreeMap<Integer, Long> nextIndex = new TreeMap<Integer, Long>();
+	// stores the last logIndex sent to each follower
 	TreeMap<Integer, Long> matchIndex = new TreeMap<Integer, Long>();
 
 	public Raft() {
@@ -71,11 +83,30 @@ public class Raft implements Election {
 		currentState = followerState;
 	}
 
+	/**
+	 * Process RaftMessage - delegate to currentState
+	 * if the request is ClientRequest,
+	 * 	if currentState is Leader, send append request to followers
+	 * 	else forward client request to Leader
+	 */
 	@Override
 	public Management process(Management req) {
-		return currentState.process(req);
+		if(req.getRaftMessage().getAction() == RaftMessage.Action.CLIENTREQUEST) {
+			LogEntry entry = req.getRaftMessage().getEntries().getEntryList().get(0);
+			boolean isInsert = entry.getAction() == LogEntry.DataAction.INSERT ? true : false; 
+			appendLogEntry(entry.getData(), isInsert);
+			return null;
+		} else {
+			return currentState.process(req);
+		}
 	}
 
+	/**
+	 * Build appendResponse to send to the leader node
+	 * @param toNode
+	 * @param responseFlag
+	 * @return Management response
+	 */
 	public Management getAppendResponse(int toNode, boolean responseFlag) {
 
 		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
@@ -96,6 +127,12 @@ public class Raft implements Election {
 		return mb.build();
 	}
 
+	/**
+	 * Build vote response to send to candidate
+	 * @param toNode
+	 * @param responseFlag
+	 * @return Management response
+	 */
 	public Management getVoteResponse(int toNode, boolean responseFlag) {
 		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
 		mhb.setOriginator(this.nodeId);
@@ -113,9 +150,12 @@ public class Raft implements Election {
 		mb.setRaftMessage(rmb.build());
 
 		return mb.build();
-
 	}
 
+	/**
+	 * Build voteRequest to send to other nodes in the cluster
+	 * @return Management response
+	 */
 	public Management getRequestVoteNotice() {
 		logger.info("Node " + getNodeId() + " becomes candidate");
 		setState(State.Candidate);
@@ -145,6 +185,10 @@ public class Raft implements Election {
 
 	}
 	
+	/**
+	 * Build AppendRequest for heartbeat i.e. with 0 log entries
+	 * @return Management response
+	 */
 	public Management getAppendRequest() {
 		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
 		mhb.setOriginator(this.nodeId);
@@ -167,6 +211,13 @@ public class Raft implements Election {
 		return mb.build();
 	}
 	
+	/**
+	 * Build AppendRequest to send to a follower with log entries
+	 * starting from logStartIndex to lastIndx
+	 * @param toNode
+	 * @param logStartIndex
+	 * @return Management response
+	 */
 	public Management getAppendRequest(int toNode, long logStartIndex) {
 		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
 		mhb.setOriginator(this.nodeId);
@@ -192,6 +243,11 @@ public class Raft implements Election {
 		return mb.build();
 	}
 
+	/**
+	 * Build AppendRequests for all the nodes with entries starting 
+	 * from nextIndex for that node
+	 * @return Map<Integer, Management>
+	 */
 	public Map<Integer, Management> getAppendRequestForFollowers() {
 		Map<Integer, Management> appendRequests = new HashMap<Integer, Management>();
 
@@ -206,7 +262,14 @@ public class Raft implements Election {
 		return appendRequests;
 	}
 	
-	public boolean appendLogEntry(DataSet data, boolean isInsert) {
+	/**
+	 * Insert a new logEntry in log, send append request to all
+	 * followers to apped new log entry
+	 * @param data
+	 * @param isInsert
+	 * @return 
+	 */
+	public void appendLogEntry(DataSet data, boolean isInsert) {
 		if(currentState instanceof LeaderState) {
 			LogEntry.Builder leb = LogEntry.newBuilder();
 			if(isInsert) {
@@ -221,18 +284,32 @@ public class Raft implements Election {
 			isReplicationInProcess = false; 
 			isLogReplicated = false;*/
 		}
-		else {
+		else if(currentState instanceof FollowerState){
 			// send to leader
+			forwardClientRequestToLeader(data);
+		} else {
+			// TODO what to do when node is in candidate state
 		}
-		return true;
 	}
 
+	/**
+	 * Determine if a candidate has won election after a Candidate
+	 * receives a vote
+	 * @return true if vote received from majority, false otherwise
+	 */
 	public boolean hasWonElection() {
 		if (getVoteRecieved() > getTotalNodes() / 2) {
 			return true;
 		}
 		return false;
 	}
+	
+	/**
+	 * If Candidate has won election, declare itself as leader by
+	 * sending AppendRequest to all followers and reinitialize all
+	 * followers
+	 * @return Management 
+	 */
 
 	public Management declareLeader() {
 		setState(State.Leader);
@@ -245,6 +322,10 @@ public class Raft implements Election {
 		return getAppendRequest();
 	}
 
+	/**
+	 * After transition to leader, For each follower, reinitialize nextIndex 
+	 * to lastIndex+1 and matchIndex to 0
+	 */
 	private void reinitializeIndexes() {
 		for (Integer nodeId : ConnectionManager.getConnectedNodeSet(true)) {
 			// Next Index
@@ -255,9 +336,12 @@ public class Raft implements Election {
 	}
 	
 	/**
-	 * If there exists an N such that N > commitIndex, a majority 
+	 * Checks If there exists an N such that N > commitIndex, a majority 
 	 * of matchIndex[i] ≥ N, and log[N].term == currentTerm:
 	 * set commitIndex = N
+	 * 
+	 * if commitIndex gets updated send message to Resource with 
+	 * entries starting from lastApplied + 1 to commit index
 	 */
 	public void updateCommitIndex() {
 		long max = Long.MIN_VALUE;
@@ -287,10 +371,46 @@ public class Raft implements Election {
 			log.setCommitIndex(N);
 			// send message to Resource with entries starting from 
 			// lastApplied + 1 to commit index
+			if(log.getCommitIndex() >log.getLastApplied()) {
+				List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
+				for(long i = log.getLastApplied() + 1; i <= log.getCommitIndex(); i++) {
+					MgmtResponse response = new MgmtResponse();
+					response.setLogIndex(i);
+					response.setDataSet(log.getEntry(i).getData());
+					resourceList.add(response);
+				}
+				// TODO send resourceList to resource
+				log.setLastApplied(log.getCommitIndex());
+			}
+		}
+	}
+	
+	/**
+	 * When in FollowerState, if commitIndex gets updated by leader,
+	 * update the commitIndex of self and send message to Resource with 
+	 * entries starting from lastApplied + 1 to commit index
+	 * @param newCommitIndex
+	 */
+	public void updateCommitIndex(long newCommitIndex) {
+		log.setCommitIndex(newCommitIndex);
+		if(log.getCommitIndex() >log.getLastApplied()) {
+			List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
+			for(long i = log.getLastApplied(); i <= log.getCommitIndex(); i++) {
+				MgmtResponse response = new MgmtResponse();
+				response.setLogIndex(i);
+				response.setDataSet(log.getEntry(i).getData());
+				resourceList.add(response);
+			}
+			// TODO send resourceList to resource
 			log.setLastApplied(log.getCommitIndex());
 		}
 	}
 	
+	/**
+	 * When AppendRequest is successful for a node, update it's 
+	 * nextIndex to lastIndex+1 and matchIndex to lastIndex
+	 * @param nodeId
+	 */
 	public void updateNextAndMatchIndex(int nodeId) {
 		if(matchIndex.get(nodeId) != log.lastIndex()) {
 			nextIndex.put(nodeId, log.lastIndex() + 1);
@@ -300,11 +420,53 @@ public class Raft implements Election {
 		}
 	}
 	
+	/**
+	 * If follower rejects an AppendRequest due to log mismatch,
+	 * decrement the follower's next index and return the
+	 * decremented index
+	 * @param nodeId
+	 * @return decremented nextIndex
+	 */
 	public long getDecrementedNextIndex(int nodeId) {
 		nextIndex.put(nodeId, nextIndex.get(nodeId) - 1);
 		return nextIndex.get(nodeId);
 	}
+	
+	/**
+	 * If current state is follower and client send as msg to broadcast,
+	 * forward the msg as ClientRequest to the current leader
+	 * @param DataSet data
+	 */
+	public void forwardClientRequestToLeader(DataSet data) {
+		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
+		mhb.setOriginator(this.nodeId);
+		mhb.setTime(System.currentTimeMillis());
+		mhb.setSecurityCode(-999); // TODO add security
 
+		RaftMessage.Builder rmb = RaftMessage.newBuilder();
+		rmb.setAction(RaftMessage.Action.CLIENTREQUEST);
+		rmb.setTerm(-1);
+		
+		LogEntry.Builder leb = LogEntry.newBuilder();
+		leb.setAction(LogEntry.DataAction.INSERT);
+		leb.setData(data);
+		leb.setTerm(-1);
+		
+		LogEntryList.Builder le = LogEntryList.newBuilder();
+		le.addEntry(leb.build());
+		rmb.setEntries(le.build());
+
+		Management.Builder mb = Management.newBuilder();
+		mb.setHeader(mhb.build());
+		mb.setRaftMessage(rmb.build());
+
+		RaftManager.getInstance().sendMgmtRequest(leaderId, mb.build());
+	}
+
+	/**
+	 * Set CurrentState
+	 * @param nextState
+	 */
 	public void setState(State nextState) {
 		switch (nextState) {
 		case Follower:
@@ -319,8 +481,55 @@ public class Raft implements Election {
 		}
 	}
 
+	/**
+	 * Get currentState
+	 * @return RaftState currentState
+	 */
 	public RaftState getState() {
 		return currentState;
+	}
+	
+	/**
+	 * Get currentState in format of State
+	 * To be used by Application Resource
+	 * @return State currentState
+	 */
+	public State getCurrentState() {
+		State state = State.Follower;
+		if(currentState instanceof LeaderState) {
+			state = State.Leader;
+		} else if(currentState instanceof CandidateState) {
+			state = State.Candidate;
+		}
+		return state;
+	}
+	
+	/**
+	 * Send logs to resource starting from startIndex.
+	 * To reduce message traffic to client, send only last 10 entries
+	 * if lastIndex - startIndex > 10
+	 * @param startIndex
+	 * @return
+	 */
+	public List<MgmtResponse> getDataSetFromLog(long startIndex) {
+		int maxDataToSent = 10;
+		List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
+		if(log.lastIndex() - startIndex > 10) {
+			for(long i = log.lastIndex() - maxDataToSent; i <= log.lastIndex(); i++) {
+				MgmtResponse response = new MgmtResponse();
+				response.setLogIndex(i);
+				response.setDataSet(log.getEntry(i).getData());
+				resourceList.add(response);
+			}
+		} else {
+			for(long i = startIndex; i <= log.lastIndex(); i++) {
+				MgmtResponse response = new MgmtResponse();
+				response.setLogIndex(i);
+				response.setDataSet(log.getEntry(i).getData());
+				resourceList.add(response);
+			}
+		}
+		return resourceList;
 	}
 
 	public int getVotedFor() {

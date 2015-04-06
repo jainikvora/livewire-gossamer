@@ -38,6 +38,8 @@ public class FollowerState extends RaftState {
 					if(raft.getLog().getEntry(msg.getPrevLogIndex()) != null) {
 						if(raft.getLog().getEntry(msg.getPrevLogIndex()).getTerm() != msg.getPrevTerm()) {
 							response = raft.getVoteResponse(header.getOriginator(), false);
+						} else {
+							response = raft.getVoteResponse(header.getOriginator(), true);
 						}
 					} else {
 						raft.setVotedFor(header.getOriginator());
@@ -47,7 +49,7 @@ public class FollowerState extends RaftState {
 						response = raft.getVoteResponse(header.getOriginator(), true);
 					}
 				} else {
-					response = raft.getVoteResponse(header.getOriginator(), true);
+					response = raft.getVoteResponse(header.getOriginator(), false);
 				}
 			}
 			raft.setLastKnownBeat(System.currentTimeMillis());
@@ -55,7 +57,7 @@ public class FollowerState extends RaftState {
 		case VOTE:
 			break;
 		case APPEND:
-			if (raft.getTerm() > msg.getTerm()) {
+			if (msg.getTerm() < raft.getTerm()) {
 				/* leader has stale entries - reject append */
 				response = raft
 						.getAppendResponse(header.getOriginator(), false);
@@ -65,13 +67,16 @@ public class FollowerState extends RaftState {
 			 * whose term matches prevLogTerm
 			 */
 			else if (msg.hasEntries()) {
-				
 				LogEntry prevEntry = raft.getLog().getEntry(
 						msg.getPrevLogIndex());
-				if (prevEntry.getTerm() != msg.getPrevTerm()) {
+				
+				if(prevEntry == null) {
 					response = raft.getAppendResponse(header.getOriginator(),
 							false);
-				} 
+				} else if (prevEntry.getTerm() != msg.getPrevTerm()) {
+					response = raft.getAppendResponse(header.getOriginator(),
+							false);
+				}
 				/**
 				 * If an existing entry conflicts with a new one (same index
 				 * but different terms), delete the existing entry and all
@@ -91,6 +96,7 @@ public class FollowerState extends RaftState {
 					/* Append any new entries not already in the log */
 					LogEntry[] recievedEntries = new LogEntry[msg.getEntries()
 							.getEntryList().size()];
+					recievedEntries = msg.getEntries().getEntryList().toArray(recievedEntries);
 					raft.getLog().appendEntry(recievedEntries);
 
 					/* If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry) */
@@ -98,7 +104,8 @@ public class FollowerState extends RaftState {
 							.getCommitIndex()) {
 						long newCommitIndex = Math.min(msg.getLogCommitIndex(),
 								raft.getLog().lastIndex());
-						raft.getLog().setCommitIndex(newCommitIndex);
+						//raft.getLog().setCommitIndex(newCommitIndex);
+						raft.updateCommitIndex(newCommitIndex);
 					}
 				}
 			}

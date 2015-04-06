@@ -36,15 +36,15 @@ public class CandidateState extends RaftState{
 					raft.setState(State.Follower);
 					response = raft.getVoteResponse(header.getOriginator(),true);  //true -- for vote granted
 				}*/ else {
-					response = raft.getVoteResponse(header.getOriginator(),false);  //true -- for vote granted
+					response = raft.getVoteResponse(header.getOriginator(),false);
 				}
 				raft.setLastKnownBeat(System.currentTimeMillis());
 				break;
 			case VOTE:
 				if(msg.getTerm() > raft.getTerm()) {
 					raft.setState(State.Follower);
-					raft.setLastKnownBeat(System.currentTimeMillis());
 					raft.setVotedFor(-1);
+					raft.setVotedForInTerm(msg.getTerm());
 	        	} else if(msg.getResponseFlag() == true) {
 	        		raft.setVoteRecieved(raft.getVoteRecieved() + 1);
 	        		if(raft.hasWonElection()) {
@@ -58,6 +58,7 @@ public class CandidateState extends RaftState{
 					raft.setVotedFor(-1);
 					raft.setState(State.Follower);
 					response = raft.process(req);
+					raft.setLastKnownBeat(System.currentTimeMillis());
 				}
 				break;
 			case APPENDRESPONSE:
