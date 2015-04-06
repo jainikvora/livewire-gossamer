@@ -14292,6 +14292,21 @@ public final class App {
      */
     com.google.protobuf.ByteString
         getCaptionBytes();
+
+    // required string userId = 4;
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    boolean hasUserId();
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    java.lang.String getUserId();
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getUserIdBytes();
   }
   /**
    * Protobuf type {@code SnapMsg}
@@ -14361,6 +14376,11 @@ public final class App {
             case 26: {
               bitField0_ |= 0x00000004;
               caption_ = input.readBytes();
+              break;
+            }
+            case 34: {
+              bitField0_ |= 0x00000008;
+              userId_ = input.readBytes();
               break;
             }
           }
@@ -14505,10 +14525,54 @@ public final class App {
       }
     }
 
+    // required string userId = 4;
+    public static final int USERID_FIELD_NUMBER = 4;
+    private java.lang.Object userId_;
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    public boolean hasUserId() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    public java.lang.String getUserId() {
+      java.lang.Object ref = userId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          userId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string userId = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getUserIdBytes() {
+      java.lang.Object ref = userId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        userId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       reqId_ = "";
       image_ = com.google.protobuf.ByteString.EMPTY;
       caption_ = "";
+      userId_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -14527,6 +14591,10 @@ public final class App {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasUserId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -14542,6 +14610,9 @@ public final class App {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, getCaptionBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(4, getUserIdBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -14563,6 +14634,10 @@ public final class App {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, getCaptionBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(4, getUserIdBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -14690,6 +14765,8 @@ public final class App {
         bitField0_ = (bitField0_ & ~0x00000002);
         caption_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
+        userId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -14730,6 +14807,10 @@ public final class App {
           to_bitField0_ |= 0x00000004;
         }
         result.caption_ = caption_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.userId_ = userId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -14759,6 +14840,11 @@ public final class App {
           caption_ = other.caption_;
           onChanged();
         }
+        if (other.hasUserId()) {
+          bitField0_ |= 0x00000008;
+          userId_ = other.userId_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -14773,6 +14859,10 @@ public final class App {
           return false;
         }
         if (!hasCaption()) {
+          
+          return false;
+        }
+        if (!hasUserId()) {
           
           return false;
         }
@@ -14978,6 +15068,80 @@ public final class App {
   }
   bitField0_ |= 0x00000004;
         caption_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required string userId = 4;
+      private java.lang.Object userId_ = "";
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public boolean hasUserId() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public java.lang.String getUserId() {
+        java.lang.Object ref = userId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          userId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getUserIdBytes() {
+        java.lang.Object ref = userId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          userId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public Builder setUserId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        userId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public Builder clearUserId() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        userId_ = getDefaultInstance().getUserId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string userId = 4;</code>
+       */
+      public Builder setUserIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        userId_ = value;
         onChanged();
         return this;
       }
@@ -17735,20 +17899,20 @@ public final class App {
   public interface RegistrationOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required string clientID = 1;
+    // required string clientId = 1;
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
-    boolean hasClientID();
+    boolean hasClientId();
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
-    java.lang.String getClientID();
+    java.lang.String getClientId();
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
     com.google.protobuf.ByteString
-        getClientIDBytes();
+        getClientIdBytes();
 
     // optional string message = 2;
     /**
@@ -17818,7 +17982,7 @@ public final class App {
             }
             case 10: {
               bitField0_ |= 0x00000001;
-              clientID_ = input.readBytes();
+              clientId_ = input.readBytes();
               break;
             }
             case 18: {
@@ -17866,20 +18030,20 @@ public final class App {
     }
 
     private int bitField0_;
-    // required string clientID = 1;
+    // required string clientId = 1;
     public static final int CLIENTID_FIELD_NUMBER = 1;
-    private java.lang.Object clientID_;
+    private java.lang.Object clientId_;
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
-    public boolean hasClientID() {
+    public boolean hasClientId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
-    public java.lang.String getClientID() {
-      java.lang.Object ref = clientID_;
+    public java.lang.String getClientId() {
+      java.lang.Object ref = clientId_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -17887,22 +18051,22 @@ public final class App {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          clientID_ = s;
+          clientId_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>required string clientID = 1;</code>
+     * <code>required string clientId = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getClientIDBytes() {
-      java.lang.Object ref = clientID_;
+        getClientIdBytes() {
+      java.lang.Object ref = clientId_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        clientID_ = b;
+        clientId_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -17953,7 +18117,7 @@ public final class App {
     }
 
     private void initFields() {
-      clientID_ = "";
+      clientId_ = "";
       message_ = "";
     }
     private byte memoizedIsInitialized = -1;
@@ -17961,7 +18125,7 @@ public final class App {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasClientID()) {
+      if (!hasClientId()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -17973,7 +18137,7 @@ public final class App {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getClientIDBytes());
+        output.writeBytes(1, getClientIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getMessageBytes());
@@ -17989,7 +18153,7 @@ public final class App {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getClientIDBytes());
+          .computeBytesSize(1, getClientIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -18111,7 +18275,7 @@ public final class App {
 
       public Builder clear() {
         super.clear();
-        clientID_ = "";
+        clientId_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         message_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -18146,7 +18310,7 @@ public final class App {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.clientID_ = clientID_;
+        result.clientId_ = clientId_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -18167,9 +18331,9 @@ public final class App {
 
       public Builder mergeFrom(poke.comm.App.Registration other) {
         if (other == poke.comm.App.Registration.getDefaultInstance()) return this;
-        if (other.hasClientID()) {
+        if (other.hasClientId()) {
           bitField0_ |= 0x00000001;
-          clientID_ = other.clientID_;
+          clientId_ = other.clientId_;
           onChanged();
         }
         if (other.hasMessage()) {
@@ -18182,7 +18346,7 @@ public final class App {
       }
 
       public final boolean isInitialized() {
-        if (!hasClientID()) {
+        if (!hasClientId()) {
           
           return false;
         }
@@ -18208,76 +18372,76 @@ public final class App {
       }
       private int bitField0_;
 
-      // required string clientID = 1;
-      private java.lang.Object clientID_ = "";
+      // required string clientId = 1;
+      private java.lang.Object clientId_ = "";
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
-      public boolean hasClientID() {
+      public boolean hasClientId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
-      public java.lang.String getClientID() {
-        java.lang.Object ref = clientID_;
+      public java.lang.String getClientId() {
+        java.lang.Object ref = clientId_;
         if (!(ref instanceof java.lang.String)) {
           java.lang.String s = ((com.google.protobuf.ByteString) ref)
               .toStringUtf8();
-          clientID_ = s;
+          clientId_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getClientIDBytes() {
-        java.lang.Object ref = clientID_;
+          getClientIdBytes() {
+        java.lang.Object ref = clientId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          clientID_ = b;
+          clientId_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
-      public Builder setClientID(
+      public Builder setClientId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        clientID_ = value;
+        clientId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
-      public Builder clearClientID() {
+      public Builder clearClientId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        clientID_ = getDefaultInstance().getClientID();
+        clientId_ = getDefaultInstance().getClientId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientID = 1;</code>
+       * <code>required string clientId = 1;</code>
        */
-      public Builder setClientIDBytes(
+      public Builder setClientIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        clientID_ = value;
+        clientId_ = value;
         onChanged();
         return this;
       }
@@ -18502,22 +18666,22 @@ public final class App {
       "\030\007 \003(\0132\014.RoutingPath\022\016\n\006toNode\030\010 \001(\005\022\036\n\007" +
       "options\030\t \003(\0132\r.NameValueSet\"P\n\007Routing\022" +
       "\010\n\004PING\020\002\022\016\n\nNAMESPACES\020\003\022\010\n\004JOBS\020\004\022\013\n\007R" +
-      "EPORTS\020\n\022\n\n\006MANAGE\020d\022\010\n\004SNAP\020\005\"8\n\007SnapMs" +
+      "EPORTS\020\n\022\n\n\006MANAGE\020d\022\010\n\004SNAP\020\005\"H\n\007SnapMs" +
       "g\022\r\n\005reqId\030\001 \002(\t\022\r\n\005image\030\002 \002(\014\022\017\n\007capti" +
-      "on\030\003 \002(\t\"\354\001\n\007Payload\022\023\n\004ping\030\001 \001(\0132\005.Pin" +
-      "g\022%\n\010space_op\030\002 \001(\0132\023.NameSpaceOperation",
-      "\022\035\n\006job_op\030\003 \001(\0132\r.JobOperation\022\036\n\njob_s" +
-      "tatus\030\r \001(\0132\n.JobStatus\022&\n\014space_status\030" +
-      "\014 \001(\0132\020.NameSpaceStatus\022#\n\014registration\030" +
-      "\016 \001(\0132\r.Registration\022\031\n\007SnapMsg\030\017 \001(\0132\010." +
-      "SnapMsg\":\n\007Request\022\027\n\006header\030\001 \002(\0132\007.Hea" +
-      "der\022\026\n\004body\030\002 \002(\0132\010.Payload\"1\n\014Registrat" +
-      "ion\022\020\n\010clientID\030\001 \002(\t\022\017\n\007message\030\002 \001(\t*\221" +
-      "\001\n\nPokeStatus\022\n\n\006UKNOWN\020\001\022\013\n\007SUCCESS\020\002\022\013" +
-      "\n\007NOFOUND\020d\022\020\n\014NOINCOMPLETE\020e\022\n\n\006NOAUTH\020" +
-      "f\022\020\n\014NOCONNECTION\020g\022\017\n\013NOREACHABLE\020h\022\016\n\n",
-      "NORESOURCE\020i\022\014\n\007FAILURE\020\307\001B\r\n\tpoke.commH" +
-      "\001"
+      "on\030\003 \002(\t\022\016\n\006userId\030\004 \002(\t\"\354\001\n\007Payload\022\023\n\004" +
+      "ping\030\001 \001(\0132\005.Ping\022%\n\010space_op\030\002 \001(\0132\023.Na",
+      "meSpaceOperation\022\035\n\006job_op\030\003 \001(\0132\r.JobOp" +
+      "eration\022\036\n\njob_status\030\r \001(\0132\n.JobStatus\022" +
+      "&\n\014space_status\030\014 \001(\0132\020.NameSpaceStatus\022" +
+      "#\n\014registration\030\016 \001(\0132\r.Registration\022\031\n\007" +
+      "SnapMsg\030\017 \001(\0132\010.SnapMsg\":\n\007Request\022\027\n\006he" +
+      "ader\030\001 \002(\0132\007.Header\022\026\n\004body\030\002 \002(\0132\010.Payl" +
+      "oad\"1\n\014Registration\022\020\n\010clientId\030\001 \002(\t\022\017\n" +
+      "\007message\030\002 \001(\t*\221\001\n\nPokeStatus\022\n\n\006UKNOWN\020" +
+      "\001\022\013\n\007SUCCESS\020\002\022\013\n\007NOFOUND\020d\022\020\n\014NOINCOMPL" +
+      "ETE\020e\022\n\n\006NOAUTH\020f\022\020\n\014NOCONNECTION\020g\022\017\n\013N",
+      "OREACHABLE\020h\022\016\n\nNORESOURCE\020i\022\014\n\007FAILURE\020" +
+      "\307\001B\r\n\tpoke.commH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -18601,7 +18765,7 @@ public final class App {
           internal_static_SnapMsg_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_SnapMsg_descriptor,
-              new java.lang.String[] { "ReqId", "Image", "Caption", });
+              new java.lang.String[] { "ReqId", "Image", "Caption", "UserId", });
           internal_static_Payload_descriptor =
             getDescriptor().getMessageTypes().get(13);
           internal_static_Payload_fieldAccessorTable = new
@@ -18619,7 +18783,7 @@ public final class App {
           internal_static_Registration_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Registration_descriptor,
-              new java.lang.String[] { "ClientID", "Message", });
+              new java.lang.String[] { "ClientId", "Message", });
           return null;
         }
       };

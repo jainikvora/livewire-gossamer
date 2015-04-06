@@ -210,6 +210,7 @@ message SnapMsg {							//Image must be .png files
 required string reqId = 1;
 required bytes image = 2;
 required string caption = 3;
+required string userId = 4;
 
 
 }
@@ -241,7 +242,7 @@ message Request {
 
 message Registration{
 
-	required string clientID = 1;
+	required string clientId = 1;
 	optional string message = 2;
 
 }
