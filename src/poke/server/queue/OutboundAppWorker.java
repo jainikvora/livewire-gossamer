@@ -50,7 +50,7 @@ public class OutboundAppWorker extends Thread {
 		}
 
 		while (true) {
-			if (!forever && sq.outbound.size() == 0)
+			if ((!forever && sq.outbound.size() == 0) ||!sq.getChannel().isActive()  )
 				break;
 
 			try {
@@ -60,12 +60,12 @@ public class OutboundAppWorker extends Thread {
 					boolean rtn = false;
 					if (sq.channel != null && sq.channel.isOpen()
 							&& sq.channel.isWritable()) {
-						ChannelFuture cf = sq.channel.write(msg);
+						ChannelFuture cf = sq.channel.writeAndFlush(msg);
 
 						// blocks on write - use listener to be async
 						cf.awaitUninterruptibly();
 						rtn = cf.isSuccess();
-						if (!rtn) {
+						if ((!rtn) && sq.channel.isActive()) {
 							logger.info("Putting message to outbound queue!!");
 							sq.outbound.putFirst(msg);
 
@@ -73,7 +73,7 @@ public class OutboundAppWorker extends Thread {
 					}
 
 				} else {
-					logger.info("Putting message to outbound queue!!");
+				logger.info("Putting message to outbound queue!!");
 					sq.outbound.putFirst(msg);
 				}
 
