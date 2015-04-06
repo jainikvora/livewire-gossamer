@@ -21,7 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import poke.comm.App.PokeStatus;
-import poke.comm.App.Request;
+import poke.comm.Image.Request;
+import poke.resources.SnapResource;
 import poke.server.resources.Resource;
 import poke.server.resources.ResourceFactory;
 import poke.server.resources.ResourceUtil;
@@ -60,8 +61,9 @@ public class InboundAppWorker extends Thread {
 				// block until a message is enqueued
 				GeneratedMessage msg = sq.inbound.take();
 
+				
 				//logger.info(msg.toString());
-				//logger.info("Inbound worker got the request!!");
+				logger.info("Inbound worker got the request!!");
 				// process request and enqueue response
 				if (msg instanceof Request) {
 					Request req = ((Request) msg);
@@ -79,17 +81,20 @@ public class InboundAppWorker extends Thread {
 					// creates creation burdens on the server. If
 					// we use a pool instead, we can gain some relief.
 
-					Resource rsc = ResourceFactory.getInstance().resourceInstance(req.getHeader());
+					//Resource rsc = ResourceFactory.getInstance().resourceInstance(req.getHeader());
+					SnapResource rsc = new SnapResource();
 
 					Request reply = null;
+					
 					if (rsc == null) {
 						logger.error("failed to obtain resource for " + req);
-						reply = ResourceUtil
-								.buildError(req.getHeader(), PokeStatus.NORESOURCE, "Request not processed");
+						/*reply = ResourceUtil
+								.buildError(req.getHeader(), PokeStatus.NORESOURCE, "Request not processed");*/
 					} else {
 						// message communication can be two-way or one-way.
 						// One-way communication will not produce a response
 						// (reply).
+						logger.info("server is processing requests!");
 						reply = rsc.process(req);
 					}
 

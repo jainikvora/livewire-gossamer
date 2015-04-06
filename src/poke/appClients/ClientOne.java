@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -16,10 +17,10 @@ import poke.client.ClientPrintListener;
 import poke.client.comm.CommListener;
 
 public class ClientOne {
-	private String tag;
 
-	public ClientOne(String tag) {
-		this.tag = tag;
+    int clientID;
+	public ClientOne(int clientID) {
+		this.clientID = clientID;
 	}
 
 	public void run(ClientCommand cc) {
@@ -35,10 +36,11 @@ public class ClientOne {
 			baos.flush();
 			myByeImage = baos.toByteArray();
 			baos.close();
-
+			
+			String uniqueRequestID = UUID.randomUUID().toString().replaceAll("-", "");			
 			ByteString bs = ByteString.copyFrom(myByeImage);
-
-			cc.sendImage("1", "My First Image", bs);
+			cc.sendImage(uniqueRequestID, "My First Image", bs , clientID);
+			
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -52,11 +54,11 @@ public class ClientOne {
 			CommListener listener = new ClientPrintListener("First Client");
 			cc.addListener(listener);
 
-			ClientOne cone = new ClientOne("FirstClient");
+			ClientOne cone = new ClientOne(1);
 			cone.run(cc);
 			// we are running asynchronously
 			System.out.println("\nExiting in 150 seconds");
-			Thread.sleep(150000);
+			Thread.sleep(150000000);
 			System.exit(0);
 
 		} catch (Exception e) {

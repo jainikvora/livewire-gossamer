@@ -34,6 +34,8 @@ import poke.comm.App.Payload;
 import poke.comm.App.Ping;
 import poke.comm.App.Request;
 import poke.comm.App.SnapMsg;
+import poke.comm.Image;
+import poke.comm.Image.PayLoad;
 
 /**
  * The command class is the concrete implementation of the functionality of our
@@ -80,33 +82,37 @@ public class ClientCommand {
 	 * @param num
 	 */
     
-	public void sendImage(String reqId, String caption, ByteString images) {
+	public void sendImage(String reqId, String caption, ByteString images , int clientID) {
 		
-		// data to send				
-		SnapMsg.Builder snp = SnapMsg.newBuilder();
-		snp.setCaption(caption);
-		snp.setReqId(reqId);
-		snp.setImage(images);
-				
+		
 			
 		// payload containing data
-		Request.Builder r = Request.newBuilder();
-		Payload.Builder p = Payload.newBuilder();
-		p.setSnapMsg(snp.build());
-		r.setBody(p.build());
+		poke.comm.Image.Request.Builder r = poke.comm.Image.Request.newBuilder();
+				
+	
+		PayLoad.Builder p = PayLoad.newBuilder();
+		p.setReqId(reqId);
+		p.setData(images);
+				
+		
+		r.setPayload(p.build());
 
 		// header with routing info
-		Header.Builder h = Header.newBuilder();
-		h.setOriginator(1000);
-		h.setTag("first Image");
+		poke.comm.Image.Header.Builder h = poke.comm.Image.Header.newBuilder();
+		h.setClientId(clientID);
+		h.setCaption(caption);
+		h.setIsClient(true);
 		
-		h.setTime(System.currentTimeMillis());
-		h.setRoutingId(Header.Routing.SNAP);
 		r.setHeader(h.build());
+		
+		poke.comm.Image.Ping.Builder pg = poke.comm.Image.Ping.newBuilder();
+		pg.setIsPing(false);
+		
+		r.setPing(pg.build());
 
-		Request req = r.build();	  
+	    poke.comm.Image.Request req = r.build();	  
 
-		try {
+		try {			
 			comm.sendMessage(req);
 		} catch (Exception e) {
 			logger.warn("Unable to deliver message, queuing");
@@ -138,7 +144,7 @@ public class ClientCommand {
 		Request req = r.build();
 
 		try {
-			comm.sendMessage(req);
+			//comm.sendMessage(req);
 		} catch (Exception e) {
 			logger.warn("Unable to deliver message, queuing");
 		}

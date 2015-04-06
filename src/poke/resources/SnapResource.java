@@ -26,9 +26,9 @@ public class SnapResource implements Resource {
 	}
 
 	
-	public Request process(Request request) {
+	public poke.comm.Image.Request process(poke.comm.Image.Request request) {
 				
-		logger.info("poke: " + request.getBody().getPing().getTag());
+		logger.info("poke: " + request.getHeader().getCaption());
 		
 		logger.info("From Snap resource handler!!");
 		
@@ -39,7 +39,7 @@ public class SnapResource implements Resource {
 		// TODO: Re-write properly with error handling
 		try{
 			
-			byte[] byteImage = request.getBody().getSnapMsg().getImage().toByteArray();
+			byte[] byteImage = request.getPayload().getData().toByteArray();
 			
 			
 			 InputStream in = new ByteArrayInputStream(byteImage);
@@ -54,7 +54,7 @@ public class SnapResource implements Resource {
 		}
 	       
 
-		Request.Builder rb = Request.newBuilder();
+		/*Request.Builder rb = Request.newBuilder();
 
 		// metadata
 		rb.setHeader(ResourceUtil.buildHeaderFrom(request.getHeader(), PokeStatus.SUCCESS, null));
@@ -67,8 +67,15 @@ public class SnapResource implements Resource {
 		pb.setPing(fb.build());
 		rb.setBody(pb.build());
 
-		Request reply = rb.build();
+		Request reply = rb.build();*/
 
-		return reply;
+		return request;
+	}
+
+
+	@Override
+	public Request process(Request request) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

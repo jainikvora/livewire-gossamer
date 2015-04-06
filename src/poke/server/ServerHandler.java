@@ -24,7 +24,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.comm.App.Request;
+import poke.comm.Image.Request;
 import poke.server.queue.ChannelQueue;
 import poke.server.queue.QueueFactory;
 
@@ -57,8 +57,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<Request> {
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, Request req) throws Exception {
 		// processing is deferred to the worker threads
-		if (logger.isDebugEnabled())
-			logger.debug("---> server got a message from " + req.getHeader().getOriginator());
+		//if (logger.isDebugEnabled())
+			//logger.debug("---> server got a message from " + req.getHeader().getOriginator());
 		queueInstance(ctx.channel()).enqueueRequest(req, ctx.channel());
 	}
 

@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.comm.App.Request;
+import poke.comm.Image.Request;
 
 import com.google.protobuf.GeneratedMessage;
 
