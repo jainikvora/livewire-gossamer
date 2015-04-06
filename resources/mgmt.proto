@@ -117,7 +117,7 @@ message NameValueSet {
 message DataSet {
 	required string key = 1;
 	required NameValueSet data_set = 2;
-	required string client_id = 3;
+	required int32 client_id = 3;
 }
 
 message LogEntry {

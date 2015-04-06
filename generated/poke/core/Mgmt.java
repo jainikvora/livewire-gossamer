@@ -6379,20 +6379,15 @@ public final class Mgmt {
      */
     poke.core.Mgmt.NameValueSetOrBuilder getDataSetOrBuilder();
 
-    // required string client_id = 3;
+    // required int32 client_id = 3;
     /**
-     * <code>required string client_id = 3;</code>
+     * <code>required int32 client_id = 3;</code>
      */
     boolean hasClientId();
     /**
-     * <code>required string client_id = 3;</code>
+     * <code>required int32 client_id = 3;</code>
      */
-    java.lang.String getClientId();
-    /**
-     * <code>required string client_id = 3;</code>
-     */
-    com.google.protobuf.ByteString
-        getClientIdBytes();
+    int getClientId();
   }
   /**
    * Protobuf type {@code DataSet}
@@ -6463,9 +6458,9 @@ public final class Mgmt {
               bitField0_ |= 0x00000002;
               break;
             }
-            case 26: {
+            case 24: {
               bitField0_ |= 0x00000004;
-              clientId_ = input.readBytes();
+              clientId_ = input.readInt32();
               break;
             }
           }
@@ -6573,53 +6568,26 @@ public final class Mgmt {
       return dataSet_;
     }
 
-    // required string client_id = 3;
+    // required int32 client_id = 3;
     public static final int CLIENT_ID_FIELD_NUMBER = 3;
-    private java.lang.Object clientId_;
+    private int clientId_;
     /**
-     * <code>required string client_id = 3;</code>
+     * <code>required int32 client_id = 3;</code>
      */
     public boolean hasClientId() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>required string client_id = 3;</code>
+     * <code>required int32 client_id = 3;</code>
      */
-    public java.lang.String getClientId() {
-      java.lang.Object ref = clientId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientId_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>required string client_id = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getClientIdBytes() {
-      java.lang.Object ref = clientId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        clientId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public int getClientId() {
+      return clientId_;
     }
 
     private void initFields() {
       key_ = "";
       dataSet_ = poke.core.Mgmt.NameValueSet.getDefaultInstance();
-      clientId_ = "";
+      clientId_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6656,7 +6624,7 @@ public final class Mgmt {
         output.writeMessage(2, dataSet_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getClientIdBytes());
+        output.writeInt32(3, clientId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -6677,7 +6645,7 @@ public final class Mgmt {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getClientIdBytes());
+          .computeInt32Size(3, clientId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6804,7 +6772,7 @@ public final class Mgmt {
           dataSetBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
-        clientId_ = "";
+        clientId_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
@@ -6875,9 +6843,7 @@ public final class Mgmt {
           mergeDataSet(other.getDataSet());
         }
         if (other.hasClientId()) {
-          bitField0_ |= 0x00000004;
-          clientId_ = other.clientId_;
-          onChanged();
+          setClientId(other.getClientId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -7113,76 +7079,35 @@ public final class Mgmt {
         return dataSetBuilder_;
       }
 
-      // required string client_id = 3;
-      private java.lang.Object clientId_ = "";
+      // required int32 client_id = 3;
+      private int clientId_ ;
       /**
-       * <code>required string client_id = 3;</code>
+       * <code>required int32 client_id = 3;</code>
        */
       public boolean hasClientId() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required string client_id = 3;</code>
+       * <code>required int32 client_id = 3;</code>
        */
-      public java.lang.String getClientId() {
-        java.lang.Object ref = clientId_;
-        if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          clientId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public int getClientId() {
+        return clientId_;
       }
       /**
-       * <code>required string client_id = 3;</code>
+       * <code>required int32 client_id = 3;</code>
        */
-      public com.google.protobuf.ByteString
-          getClientIdBytes() {
-        java.lang.Object ref = clientId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          clientId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>required string client_id = 3;</code>
-       */
-      public Builder setClientId(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
+      public Builder setClientId(int value) {
+        bitField0_ |= 0x00000004;
         clientId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string client_id = 3;</code>
+       * <code>required int32 client_id = 3;</code>
        */
       public Builder clearClientId() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        clientId_ = getDefaultInstance().getClientId();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required string client_id = 3;</code>
-       */
-      public Builder setClientIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-        clientId_ = value;
+        clientId_ = 0;
         onChanged();
         return this;
       }
@@ -13380,7 +13305,7 @@ public final class Mgmt {
       "\003 \002(\003\"+\n\014NameValueSet\022\014\n\004name\030\001 \002(\t\022\r\n\005v" +
       "alue\030\002 \002(\t\"J\n\007DataSet\022\013\n\003key\030\001 \002(\t\022\037\n\010da" +
       "ta_set\030\002 \002(\0132\r.NameValueSet\022\021\n\tclient_id",
-      "\030\003 \002(\t\"|\n\010LogEntry\022$\n\006action\030\001 \002(\0162\024.Log" +
+      "\030\003 \002(\005\"|\n\010LogEntry\022$\n\006action\030\001 \002(\0162\024.Log" +
       "Entry.DataAction\022\026\n\004data\030\002 \002(\0132\010.DataSet" +
       "\022\014\n\004term\030\003 \002(\005\"$\n\nDataAction\022\n\n\006INSERT\020\001" +
       "\022\n\n\006UPDATE\020\002\"(\n\014LogEntryList\022\030\n\005entry\030\001 " +
