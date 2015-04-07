@@ -70,13 +70,16 @@ public class FollowerState extends RaftState {
 				LogEntry prevEntry = raft.getLog().getEntry(
 						msg.getPrevLogIndex());
 				
-				if(prevEntry == null) {
-					response = raft.getAppendResponse(header.getOriginator(),
-							false);
-				} else if (prevEntry.getTerm() != msg.getPrevTerm()) {
-					response = raft.getAppendResponse(header.getOriginator(),
-							false);
+				if(msg.getPrevLogIndex() != 0) {
+					if(prevEntry == null) {
+						response = raft.getAppendResponse(header.getOriginator(),
+								false);
+					} else if (prevEntry.getTerm() != msg.getPrevTerm()) {
+						response = raft.getAppendResponse(header.getOriginator(),
+								false);
+					}
 				}
+				
 				/**
 				 * If an existing entry conflicts with a new one (same index
 				 * but different terms), delete the existing entry and all
@@ -107,17 +110,26 @@ public class FollowerState extends RaftState {
 						//raft.getLog().setCommitIndex(newCommitIndex);
 						raft.updateCommitIndex(newCommitIndex);
 					}
+					
+					response = raft.getAppendResponse(header.getOriginator(),
+							true);
 				}
 			}
 			/**
 			 * Reply false if log's lastIndex and Term doesn't match with
 			 * prevLogInxed and prevTerm.
 			 */
-			else if (msg.getPrevLogIndex() != raft.getLog().lastIndex()
-					&& msg.getPrevTerm() != raft.getLog()
+			else if (msg.getPrevLogIndex() != raft.getLog().lastIndex()) {
+				if(raft.getLog().getEntry(raft.getLog().lastIndex()) != null) {
+					if(msg.getPrevTerm() != raft.getLog()
 							.getEntry(raft.getLog().lastIndex()).getTerm()) {
-				response = raft
-						.getAppendResponse(header.getOriginator(), false);
+						response = raft
+								.getAppendResponse(header.getOriginator(), false);
+					}
+				} else {
+					response = raft
+							.getAppendResponse(header.getOriginator(), false);
+				}
 			}
 			/**
 			 * Fully replicated with leader - send response to

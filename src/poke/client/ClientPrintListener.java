@@ -63,8 +63,8 @@ public class ClientPrintListener implements CommListener {
 			 InputStream in = new ByteArrayInputStream(byteImage);
 		        BufferedImage bImageFromConvert = ImageIO.read(in);
 
-		        ImageIO.write(bImageFromConvert, "jpg", new File(
-		                "/home/ampatel/Downloads/clientResponse/new-darksouls.jpg"));
+		        ImageIO.write(bImageFromConvert, "png", new File(
+		                "./resources/tmp/test123.png"));
 		}
 		catch (IOException e)
 		{

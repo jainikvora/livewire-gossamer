@@ -234,6 +234,7 @@ public class Raft implements Election {
 		rmb.setLogCommitIndex(log.getCommitIndex());
 
 		LogEntryList.Builder le = LogEntryList.newBuilder();
+		logger.info("Current entries in log:"+ log.getEntries(logStartIndex).length);
 		le.addAllEntry(Arrays.asList(log.getEntries(logStartIndex)));
 		rmb.setEntries(le.build());
 
@@ -360,7 +361,7 @@ public class Raft implements Election {
 				if(index >= N)
 					occurence += 1;
 			}
-			if(occurence > totalNodes/2) {
+			if(occurence >= totalNodes/2) {
 				majority = true;
 			} else {
 				N -= 1;
@@ -372,7 +373,7 @@ public class Raft implements Election {
 			log.setCommitIndex(N);
 			// send message to Resource with entries starting from 
 			// lastApplied + 1 to commit index
-			if(log.getCommitIndex() >log.getLastApplied()) {
+			if(log.getCommitIndex() > log.getLastApplied()) {
 				List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
 				for(long i = log.getLastApplied() + 1; i <= log.getCommitIndex(); i++) {
 					MgmtResponse response = new MgmtResponse();

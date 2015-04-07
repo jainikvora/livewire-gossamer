@@ -155,7 +155,7 @@ public class ImageResource implements ClientResource {
 		//DAO will load image to temp folder
 		//fetching image file from temp folder.
 
-		//if(imageDao.getImage(imageKey)) {
+		if(imageDao.getImage(imageKey)) {
 			byte[] myByeImage;
 			File image = new File(imagePath + imageKey + ".png");
 			BufferedImage originalImage = ImageIO.read(image);
@@ -167,9 +167,9 @@ public class ImageResource implements ClientResource {
 			ByteString bs = ByteString.copyFrom(myByeImage);
 			image.delete();
 			return buildRequestMessage(mgmt,bs);
-		//} else {
-			//throw new IOException();
-		//}
+		} else {
+			throw new IOException();
+		}
 	}
 	
 	private Management buildMgmtMessage(Request request){
