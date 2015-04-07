@@ -11,10 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.imageio.ImageIO;
-
-import com.google.protobuf.ByteString;
 
 import poke.comm.Image.Header;
 import poke.comm.Image.PayLoad;
@@ -33,27 +32,33 @@ import poke.resources.data.DAO.ImageDAO;
 import poke.server.management.ManagementQueue;
 import poke.server.queue.PerChannelQueue;
 
-public class ImageResource implements ClientResource {
+import com.google.protobuf.ByteString;
+
+public class ImageResource extends Thread implements ClientResource {
 
 	private Map<Integer, ClientInfo> clientMap;
 
 	private Map<Integer, ClientInfo> clusterMap;
-	
+
+	private boolean forever = true;
+
+	private LinkedBlockingDeque<MgmtResponse> inbound = new LinkedBlockingDeque<MgmtResponse>();
+
 	private static ImageResource imageResource;
-	//public static String imagePath = "./resources/tmp/";
-	public static String imagePath = "../../resources/tmp/"; 
+	// public static String imagePath = "./resources/tmp/";
+	public static String imagePath = "../../resources/tmp/";
 	private ImageDAO imageDao = new ImageDAO();
 
 	private ImageResource() {
 		clientMap = new HashMap<Integer, ClientInfo>();
 		clusterMap = new HashMap<Integer, ClientInfo>();
 	}
-	
-	public static ImageResource getInstance(){
-		if(imageResource==null)
-			imageResource= new ImageResource();
-			
-			return imageResource;
+
+	public static ImageResource getInstance() {
+		if (imageResource == null)
+			imageResource = new ImageResource();
+
+		return imageResource;
 	}
 
 	private synchronized void addClient(Integer clientID, ClientInfo clientInfo) {
@@ -87,6 +92,43 @@ public class ImageResource implements ClientResource {
 	}
 
 	@Override
+	public void run() {
+		while (true) {
+			/*if (!forever && this.inbound.size() == 0)
+				break;*/
+
+			try {
+				// block until a message is enqueued
+				MgmtResponse mgmt = this.inbound.take();
+				Request imageResponse = null;
+
+				try {
+					imageResponse = getImageFromS3(mgmt);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (mgmt.getDataSet().getClientId() != -1)
+					sendImageToClusters(mgmt, imageResponse);
+
+				sendImageToClients(mgmt, imageResponse);
+
+			}
+
+			catch (InterruptedException ie) {
+				break;
+			} catch (Exception e) {
+
+				break;
+			}
+		}
+
+/*		if (!forever) {
+
+		}*/
+	}
+
+	@Override
 	public void process(Request request, PerChannelQueue channel) {
 
 		boolean isClient = request.getHeader().getIsClient();
@@ -111,9 +153,9 @@ public class ImageResource implements ClientResource {
 		}
 
 		boolean stored = storeImageInS3(request);
-		if(stored){
+		if (stored) {
 			Management mgmtMessage = buildMgmtMessage(request);
-			ManagementQueue.enqueueRequest(mgmtMessage,null);
+			ManagementQueue.enqueueRequest(mgmtMessage, null);
 		}
 
 	}
@@ -122,40 +164,38 @@ public class ImageResource implements ClientResource {
 		byte[] byteImage = request.getPayload().getData().toByteArray();
 		String key = request.getPayload().getReqId();
 		InputStream in = new ByteArrayInputStream(byteImage);
-	    BufferedImage bImageFromConvert;
-	    
-	    
-	    
-	    System.out.println("********Image recieved********");
-			try {
-				File file = new File(imagePath, key+".png");
-			    if(!file.exists()) {
-			    	file.createNewFile();
-			    }
-				bImageFromConvert = ImageIO.read(in);
-				ImageIO.write(bImageFromConvert, "png", file);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		BufferedImage bImageFromConvert;
+
+		System.out.println("********Image recieved********");
+		try {
+			File file = new File(imagePath, key + ".png");
+			if (!file.exists()) {
+				file.createNewFile();
 			}
+			bImageFromConvert = ImageIO.read(in);
+			ImageIO.write(bImageFromConvert, "png", file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// logic for storing image in s3
-		if(imageDao.uploadImage(key)) {
+		if (imageDao.uploadImage(key)) {
 			return true;
 		} else {
 			return false;
 		}
-		//return true;
+		// return true;
 	}
-	
-	private Request getImageFromS3(MgmtResponse mgmt) throws IOException{
+
+	private Request getImageFromS3(MgmtResponse mgmt) throws IOException {
 		String imageKey = mgmt.getDataSet().getDataSet().getValue();
 
-		//call get image from DAO
-		//DAO will load image to temp folder
-		//fetching image file from temp folder.
+		// call get image from DAO
+		// DAO will load image to temp folder
+		// fetching image file from temp folder.
 
-		if(imageDao.getImage(imageKey)) {
+		if (imageDao.getImage(imageKey)) {
 			byte[] myByeImage;
 			File image = new File(imagePath + imageKey + ".png");
 			BufferedImage originalImage = ImageIO.read(image);
@@ -166,36 +206,34 @@ public class ImageResource implements ClientResource {
 			baos.close();
 			ByteString bs = ByteString.copyFrom(myByeImage);
 			image.delete();
-			return buildRequestMessage(mgmt,bs);
+			return buildRequestMessage(mgmt, bs);
 		} else {
 			throw new IOException();
 		}
 	}
-	
-	private Management buildMgmtMessage(Request request){
-				
+
+	private Management buildMgmtMessage(Request request) {
+
 		NameValueSet.Builder nameAndValue = NameValueSet.newBuilder();
 		nameAndValue.setName(request.getHeader().getCaption());
 		nameAndValue.setValue(request.getPayload().getReqId());
-		
-		
-		
+
 		DataSet.Builder dataSet = DataSet.newBuilder();
 		dataSet.setKey(request.getPayload().getReqId());
-		if(request.getHeader().getIsClient())
+		if (request.getHeader().getIsClient())
 			dataSet.setClientId(request.getHeader().getClientId());
 		else
 			dataSet.setClientId(-1);
 		dataSet.setDataSet(nameAndValue.build());
-		
+
 		LogEntry.Builder logEntry = LogEntry.newBuilder();
 		logEntry.setAction(LogEntry.DataAction.INSERT);
 		logEntry.setTerm(-1);
 		logEntry.setData(dataSet.build());
-		
+
 		LogEntryList.Builder logList = LogEntryList.newBuilder();
 		logList.addEntry(logEntry.build());
-		
+
 		RaftMessage.Builder rmb = RaftMessage.newBuilder();
 		rmb.setAction(RaftMessage.Action.CLIENTREQUEST);
 		rmb.setEntries(logList.build());
@@ -205,23 +243,23 @@ public class ImageResource implements ClientResource {
 		mhb.setOriginator(-1);
 		mhb.setTime(System.currentTimeMillis());
 		mhb.setSecurityCode(-999); // TODO add security
-		
+
 		Management.Builder mb = Management.newBuilder();
 		mb.setHeader(mhb.build());
 		mb.setRaftMessage(rmb.build());
 
 		return mb.build();
-		
+
 	}
-	
-	private Request buildRequestMessage(MgmtResponse mgmt,ByteString bs){
-		
-		Request.Builder r = Request.newBuilder();	
-		
+
+	private Request buildRequestMessage(MgmtResponse mgmt, ByteString bs) {
+
+		Request.Builder r = Request.newBuilder();
+
 		PayLoad.Builder p = PayLoad.newBuilder();
 		p.setReqId(mgmt.getDataSet().getKey());
 		p.setData(bs);
-		
+
 		r.setPayload(p.build());
 
 		// header with routing info
@@ -229,54 +267,48 @@ public class ImageResource implements ClientResource {
 		h.setClientId(mgmt.getDataSet().getClientId());
 		h.setCaption(mgmt.getDataSet().getDataSet().getName());
 		h.setIsClient(false);
-		
+
 		r.setHeader(h.build());
-		
+
 		Ping.Builder pg = Ping.newBuilder();
 		pg.setIsPing(false);
-		
+
 		r.setPing(pg.build());
 
-	    return r.build();	  
-		
+		return r.build();
+
 	}
-	
-	public void processRequestFromMgmt(List<MgmtResponse> list){
-		Request imageResponse = null;
-		for(MgmtResponse mgmt:list){
-			
-			try {
-				imageResponse = getImageFromS3(mgmt);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(mgmt.getDataSet().getClientId()!=-1)
-				sendImageToClusters(mgmt,imageResponse);
-			
-			sendImageToClients(mgmt,imageResponse);
-			
-		}
-		
+
+	public void processRequestFromMgmt(List<MgmtResponse> list) {
+
+		inbound.addAll(list);
+
 	}
-	
-	private void sendImageToClients(MgmtResponse mgmt,Request imageResponse){
-		
-		Iterator<Entry<Integer,ClientInfo>> iterator = clientMap.entrySet().iterator();
-		while(iterator.hasNext()){			
-			Entry<Integer,ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator.next();
-			if(entry.getKey() == mgmt.getDataSet().getClientId() && entry.getValue().getLastSentIndex() < mgmt.getLogIndex()){
-				clientMap.get(entry.getKey()).getChannel().getOutbound().add(imageResponse);
+
+	private void sendImageToClients(MgmtResponse mgmt, Request imageResponse) {
+
+		Iterator<Entry<Integer, ClientInfo>> iterator = clientMap.entrySet()
+				.iterator();
+		while (iterator.hasNext()) {
+			Entry<Integer, ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator
+					.next();
+			if (entry.getKey() == mgmt.getDataSet().getClientId()
+					&& entry.getValue().getLastSentIndex() < mgmt.getLogIndex()) {
+				clientMap.get(entry.getKey()).getChannel().getOutbound()
+						.add(imageResponse);
 			}
 		}
 	}
-	
-	private void sendImageToClusters(MgmtResponse mgmt,Request imageResponse){
-		
-		Iterator<Entry<Integer,ClientInfo>> iterator = clusterMap.entrySet().iterator();
-		while(iterator.hasNext()){			
-			Entry<Integer,ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator.next();
-			clusterMap.get(entry.getKey()).getChannel().getOutbound().add(imageResponse);
+
+	private void sendImageToClusters(MgmtResponse mgmt, Request imageResponse) {
+
+		Iterator<Entry<Integer, ClientInfo>> iterator = clusterMap.entrySet()
+				.iterator();
+		while (iterator.hasNext()) {
+			Entry<Integer, ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator
+					.next();
+			clusterMap.get(entry.getKey()).getChannel().getOutbound()
+					.add(imageResponse);
 		}
 	}
 }
