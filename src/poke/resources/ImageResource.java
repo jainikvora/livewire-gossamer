@@ -1,14 +1,15 @@
 package poke.resources;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
@@ -23,10 +24,12 @@ import poke.core.Mgmt.DataSet;
 import poke.core.Mgmt.LogEntry;
 import poke.core.Mgmt.LogEntryList;
 import poke.core.Mgmt.Management;
+import poke.core.Mgmt.MgmtHeader;
 import poke.core.Mgmt.NameValueSet;
 import poke.core.Mgmt.RaftMessage;
 import poke.resources.data.ClientInfo;
 import poke.resources.data.MgmtResponse;
+import poke.resources.data.DAO.ImageDAO;
 import poke.server.management.ManagementQueue;
 import poke.server.queue.PerChannelQueue;
 
@@ -37,6 +40,9 @@ public class ImageResource implements ClientResource {
 	private Map<Integer, ClientInfo> clusterMap;
 	
 	private static ImageResource imageResource;
+	//public static String imagePath = "./resources/tmp/";
+	public static String imagePath = "../../resources/tmp/"; 
+	private ImageDAO imageDao = new ImageDAO();
 
 	private ImageResource() {
 		clientMap = new HashMap<Integer, ClientInfo>();
@@ -113,27 +119,57 @@ public class ImageResource implements ClientResource {
 	}
 
 	private boolean storeImageInS3(Request request) {
+		byte[] byteImage = request.getPayload().getData().toByteArray();
+		String key = request.getPayload().getReqId();
+		InputStream in = new ByteArrayInputStream(byteImage);
+	    BufferedImage bImageFromConvert;
+	    
+	    
+	    
+	    System.out.println("********Image recieved********");
+			try {
+				File file = new File(imagePath, key+".png");
+			    if(!file.exists()) {
+			    	file.createNewFile();
+			    }
+				bImageFromConvert = ImageIO.read(in);
+				ImageIO.write(bImageFromConvert, "png", file);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		// logic for storing image in s3
-		return true;
+		if(imageDao.uploadImage(key)) {
+			return true;
+		} else {
+			return false;
+		}
+		//return true;
 	}
 	
 	private Request getImageFromS3(MgmtResponse mgmt) throws IOException{
-		
 		String imageKey = mgmt.getDataSet().getDataSet().getValue();
+
 		//call get image from DAO
 		//DAO will load image to temp folder
 		//fetching image file from temp folder.
-		byte[] myByeImage;
-		BufferedImage originalImage = ImageIO.read(new File(
-				"/home/ampatel/Downloads/"+imageKey+".jpg"));
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ImageIO.write(originalImage, "jpg", baos);
-		baos.flush();
-		myByeImage = baos.toByteArray();
-		baos.close();
-		ByteString bs = ByteString.copyFrom(myByeImage);
-		return buildRequestMessage(mgmt,bs);
+		//if(imageDao.getImage(imageKey)) {
+			byte[] myByeImage;
+			File image = new File(imagePath + imageKey + ".png");
+			BufferedImage originalImage = ImageIO.read(image);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(originalImage, "png", baos);
+			baos.flush();
+			myByeImage = baos.toByteArray();
+			baos.close();
+			ByteString bs = ByteString.copyFrom(myByeImage);
+			image.delete();
+			return buildRequestMessage(mgmt,bs);
+		//} else {
+			//throw new IOException();
+		//}
 	}
 	
 	private Management buildMgmtMessage(Request request){
@@ -141,6 +177,7 @@ public class ImageResource implements ClientResource {
 		NameValueSet.Builder nameAndValue = NameValueSet.newBuilder();
 		nameAndValue.setName(request.getHeader().getCaption());
 		nameAndValue.setValue(request.getPayload().getReqId());
+		
 		
 		
 		DataSet.Builder dataSet = DataSet.newBuilder();
@@ -164,7 +201,13 @@ public class ImageResource implements ClientResource {
 		rmb.setEntries(logList.build());
 		rmb.setTerm(-1);
 
+		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
+		mhb.setOriginator(-1);
+		mhb.setTime(System.currentTimeMillis());
+		mhb.setSecurityCode(-999); // TODO add security
+		
 		Management.Builder mb = Management.newBuilder();
+		mb.setHeader(mhb.build());
 		mb.setRaftMessage(rmb.build());
 
 		return mb.build();
@@ -199,7 +242,6 @@ public class ImageResource implements ClientResource {
 	}
 	
 	public void processRequestFromMgmt(List<MgmtResponse> list){
-		
 		Request imageResponse = null;
 		for(MgmtResponse mgmt:list){
 			
@@ -211,6 +253,7 @@ public class ImageResource implements ClientResource {
 			}
 			if(mgmt.getDataSet().getClientId()!=-1)
 				sendImageToClusters(mgmt,imageResponse);
+			
 			sendImageToClients(mgmt,imageResponse);
 			
 		}
@@ -222,11 +265,10 @@ public class ImageResource implements ClientResource {
 		Iterator<Entry<Integer,ClientInfo>> iterator = clientMap.entrySet().iterator();
 		while(iterator.hasNext()){			
 			Entry<Integer,ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator.next();
-			if(entry.getKey()!=mgmt.getDataSet().getClientId() && entry.getValue().getLastSentIndex()<mgmt.getLogIndex()){
+			if(entry.getKey() == mgmt.getDataSet().getClientId() && entry.getValue().getLastSentIndex() < mgmt.getLogIndex()){
 				clientMap.get(entry.getKey()).getChannel().getOutbound().add(imageResponse);
 			}
 		}
-		
 	}
 	
 	private void sendImageToClusters(MgmtResponse mgmt,Request imageResponse){
@@ -236,7 +278,5 @@ public class ImageResource implements ClientResource {
 			Entry<Integer,ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator.next();
 			clusterMap.get(entry.getKey()).getChannel().getOutbound().add(imageResponse);
 		}
-		
 	}
-
 }

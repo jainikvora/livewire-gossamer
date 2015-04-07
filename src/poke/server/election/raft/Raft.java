@@ -1,6 +1,5 @@
 package poke.server.election.raft;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import poke.core.Mgmt.LogEntryList;
 import poke.core.Mgmt.Management;
 import poke.core.Mgmt.MgmtHeader;
 import poke.core.Mgmt.RaftMessage;
+import poke.resources.ImageResource;
 import poke.resources.data.MgmtResponse;
 import poke.server.election.Election;
 import poke.server.election.ElectionListener;
@@ -228,6 +228,7 @@ public class Raft implements Election {
 		rmb.setAction(RaftMessage.Action.APPEND);
 		rmb.setTerm(this.term);
 		rmb.setPrevLogIndex(logStartIndex - 1);
+		logger.info("Log Start Index: " + logStartIndex);
 		rmb.setPrevTerm((logStartIndex - 1) != 0 ? log.getEntry(logStartIndex - 1)
 				.getTerm() : 0);
 		rmb.setLogCommitIndex(log.getCommitIndex());
@@ -379,7 +380,7 @@ public class Raft implements Election {
 					response.setDataSet(log.getEntry(i).getData());
 					resourceList.add(response);
 				}
-				// TODO send resourceList to resource
+				ImageResource.getInstance().processRequestFromMgmt(resourceList);
 				log.setLastApplied(log.getCommitIndex());
 			}
 		}
@@ -401,7 +402,7 @@ public class Raft implements Election {
 				response.setDataSet(log.getEntry(i).getData());
 				resourceList.add(response);
 			}
-			// TODO send resourceList to resource
+			ImageResource.getInstance().processRequestFromMgmt(resourceList);
 			log.setLastApplied(log.getCommitIndex());
 		}
 	}

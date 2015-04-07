@@ -29,10 +29,10 @@ public class ClientOne {
 
 			byte[] myByeImage;
 			BufferedImage originalImage = ImageIO.read(new File(
-					"/home/ampatel/Downloads/netty.jpg"));
+					"/home/jainik/Pictures/test.png"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(originalImage, "jpg", baos);
+			ImageIO.write(originalImage, "png", baos);
 			baos.flush();
 			myByeImage = baos.toByteArray();
 			baos.close();

@@ -20,12 +20,9 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import poke.comm.App.PokeStatus;
 import poke.comm.Image.Request;
+import poke.resources.ImageResource;
 import poke.resources.SnapResource;
-import poke.server.resources.Resource;
-import poke.server.resources.ResourceFactory;
-import poke.server.resources.ResourceUtil;
 
 import com.google.protobuf.GeneratedMessage;
 
@@ -82,7 +79,8 @@ public class InboundAppWorker extends Thread {
 					// we use a pool instead, we can gain some relief.
 
 					//Resource rsc = ResourceFactory.getInstance().resourceInstance(req.getHeader());
-					SnapResource rsc = new SnapResource();
+					//SnapResource rsc = new SnapResource();
+					ImageResource rsc = ImageResource.getInstance();
 
 					Request reply = null;
 					
@@ -95,12 +93,13 @@ public class InboundAppWorker extends Thread {
 						// One-way communication will not produce a response
 						// (reply).
 						logger.info("server is processing requests!");
-						reply = rsc.process(req);
+						//reply = rsc.process(req);
+						rsc.process(req,sq);
 					}
 
-					if (reply != null)
+					/*if (reply != null)
 						logger.info("Got reply and sending it to client!!");
-						sq.enqueueResponse(reply, null);
+						sq.enqueueResponse(reply, null);*/
 				}
 
 			} catch (InterruptedException ie) {
