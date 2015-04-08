@@ -25,10 +25,10 @@ public class ImageDAO {
 		boolean result = true;
 
 		try {
-			System.out.println("Uploading a new object to S3 from a file\n");
-			System.out.println(uploadFileName);
+			//System.out.println("Uploading a new object to S3 from a file\n");
+			//System.out.println(uploadFileName);
 			File file = new File(uploadFileName);
-			System.out.println(file.exists());
+			//System.out.println(file.exists());
 			s3client.putObject(new PutObjectRequest(bucketName, keyName, file));
 			file.delete();
 

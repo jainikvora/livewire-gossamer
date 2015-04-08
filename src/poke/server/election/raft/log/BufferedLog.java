@@ -33,7 +33,7 @@ import poke.core.Mgmt.LogEntry;;
 public class BufferedLog implements Loggable{
 	//protected static Logger logger = LoggerFactory.getLogger("logging");
 	
-	private TreeMap<Long, LogEntry> log;
+	public TreeMap<Long, LogEntry> log;
 	private Long commitIndex;
 	private Long lastApplied;
 	private int thresholdSize = 65536;
@@ -63,6 +63,7 @@ public class BufferedLog implements Loggable{
 	 */
 	@Override
 	public long appendEntry(LogEntry entry) {
+		
 		long index = log.isEmpty() ? 1 : log.lastKey() + 1;
 		log.put(index, entry);
 		
@@ -82,7 +83,7 @@ public class BufferedLog implements Loggable{
 	 * @return Long index - last index
 	 */
 	public long appendEntry(LogEntry[] entries) {
-		long index = log.isEmpty() ? 1 : log.lastKey();
+		long index = log.isEmpty() ? 0 : log.lastKey();
 		
 		for(LogEntry logEntry: entries) {
 			log.put(++index, logEntry);

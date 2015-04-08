@@ -38,7 +38,6 @@ public class LeaderState extends RaftState {
 		case APPEND:
 			break;
 		case APPENDRESPONSE:
-			/* Acknowledgment from the follower node */
 			if (msg.getTerm() > raft.getTerm()) {
 				raft.setState(State.Follower);
 			}

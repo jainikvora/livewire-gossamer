@@ -56,7 +56,7 @@ public class FollowerState extends RaftState {
 			break;
 		case VOTE:
 			break;
-		case APPEND:
+		case APPEND:			
 			if (msg.getTerm() < raft.getTerm()) {
 				/* leader has stale entries - reject append */
 				response = raft
@@ -100,6 +100,7 @@ public class FollowerState extends RaftState {
 					LogEntry[] recievedEntries = new LogEntry[msg.getEntries()
 							.getEntryList().size()];
 					recievedEntries = msg.getEntries().getEntryList().toArray(recievedEntries);
+					
 					raft.getLog().appendEntry(recievedEntries);
 
 					/* If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry) */
