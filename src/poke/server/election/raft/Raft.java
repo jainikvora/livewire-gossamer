@@ -363,7 +363,7 @@ public class Raft implements Election {
 				if(index >= N)
 					occurence += 1;
 			}
-			if(occurence > totalNodes/2) {
+			if(occurence >= totalNodes/2) {
 				majority = true;
 			} else {
 				N -= 1;
@@ -402,15 +402,13 @@ public class Raft implements Election {
 		log.setCommitIndex(newCommitIndex);
 		if(log.getCommitIndex() >log.getLastApplied()) {
 			List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
-			for(long i = log.getLastApplied(); i <= log.getCommitIndex(); i++) {
+			for(long i = log.getLastApplied() + 1 ; i <= log.getCommitIndex(); i++) {
 				MgmtResponse response = new MgmtResponse();
 				response.setLogIndex(i);
 				response.setDataSet(log.getEntry(i).getData());
 				resourceList.add(response);
 			}
-			logger.info("Sending msg to Resource");
 			ImageResource.getInstance().processRequestFromMgmt(resourceList);
-			logger.info("Back from resource");
 			log.setLastApplied(log.getCommitIndex());
 		}
 	}
@@ -421,6 +419,13 @@ public class Raft implements Election {
 	 * @param nodeId
 	 */
 	public void updateNextAndMatchIndex(int nodeId) {
+		if(!matchIndex.containsKey(nodeId)) {
+			// Next Index
+			nextIndex.put(nodeId, log.lastIndex() + 1);
+			// Match Index
+			matchIndex.put(nodeId, (long) 0);
+		}
+		
 		if(matchIndex.get(nodeId) != log.lastIndex()) {
 			nextIndex.put(nodeId, log.lastIndex() + 1);
 			matchIndex.put(nodeId, log.lastIndex());

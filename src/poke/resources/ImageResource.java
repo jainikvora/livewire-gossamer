@@ -292,7 +292,7 @@ public class ImageResource extends Thread implements ClientResource {
 		while (iterator.hasNext()) {
 			Entry<Integer, ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator
 					.next();
-			if (entry.getKey() == mgmt.getDataSet().getClientId()
+			if (entry.getKey() != mgmt.getDataSet().getClientId()
 					&& entry.getValue().getLastSentIndex() < mgmt.getLogIndex()) {
 				clientMap.get(entry.getKey()).getChannel().getOutbound()
 						.add(imageResponse);
