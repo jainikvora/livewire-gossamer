@@ -28,10 +28,14 @@ import poke.core.Mgmt.NameValueSet;
 import poke.core.Mgmt.RaftMessage;
 import poke.resources.data.ClientInfo;
 import poke.resources.data.MgmtResponse;
+import poke.resources.data.DAO.ClientDAO;
 import poke.resources.data.DAO.ImageDAO;
+import poke.server.conf.ServerConf;
 import poke.server.management.ManagementQueue;
+import poke.server.managers.RaftManager;
 import poke.server.queue.PerChannelQueue;
 
+import com.amazonaws.services.config.model.LastDeliveryChannelDeleteFailedException;
 import com.google.protobuf.ByteString;
 
 public class ImageResource extends Thread implements ClientResource {
@@ -39,6 +43,15 @@ public class ImageResource extends Thread implements ClientResource {
 	private Map<Integer, ClientInfo> clientMap;
 
 	private Map<Integer, ClientInfo> clusterMap;
+	private ServerConf conf;
+
+	public void setConf(ServerConf conf) {
+		this.conf = conf;
+	}
+	
+	public ServerConf getConf(){
+		return this.conf;
+	}
 
 	private boolean forever = true;
 
@@ -128,6 +141,9 @@ public class ImageResource extends Thread implements ClientResource {
 		}*/
 	}
 
+	/* (non-Javadoc)
+	 * @see poke.resources.ClientResource#process(poke.comm.Image.Request, poke.server.queue.PerChannelQueue)
+	 */
 	@Override
 	public void process(Request request, PerChannelQueue channel) {
 
@@ -136,6 +152,23 @@ public class ImageResource extends Thread implements ClientResource {
 			Integer clientId = request.getHeader().getClientId();
 			if (!getClientMap().containsKey(clientId)) {
 				addClient(clientId, new ClientInfo(channel, 0, false));
+				//register the client or update its entry
+				Long sentIndex = new ClientDAO().updateClientEntry(Integer.toString(conf.getNodeId()), 
+						Integer.toString(clientId), RaftManager.getInstance().getLastLogIndex());
+				System.out.println("***************LAST INDEX******************"+sentIndex);
+				if(sentIndex != RaftManager.getInstance().getLastLogIndex()) {
+					List<MgmtResponse> list = RaftManager.getInstance().getDataSetFromIndex(sentIndex);
+					for(MgmtResponse res : list) {
+						try {
+							Request imageResponse = getImageFromS3(res);
+							this.sendImageToClients(res, imageResponse);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				
 			} else {
 				getClientInfo(clientId).setChannel(channel);
 			}
@@ -296,7 +329,11 @@ public class ImageResource extends Thread implements ClientResource {
 					&& entry.getValue().getLastSentIndex() < mgmt.getLogIndex()) {
 				clientMap.get(entry.getKey()).getChannel().getOutbound()
 						.add(imageResponse);
+				//update lastsentindex
+				
 			}
+			System.out.println("***************mgmt.getLogIndex()***************"+mgmt.getLogIndex());
+			new ClientDAO().updateClientEntry(Integer.toString(conf.getNodeId()), Integer.toString(entry.getKey()), mgmt.getLogIndex());
 		}
 	}
 
