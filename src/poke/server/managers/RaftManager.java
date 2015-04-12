@@ -231,5 +231,9 @@ public class RaftManager implements ElectionListener {
 		return ((Raft) electionInstance()).getDataSetFromLog(startIndex);
 	}
 	
+	public Long getLastLogIndex(){
+		return ((Raft) electionInstance()).getLog().getCommitIndex();
+	}
+	
 	
 }
