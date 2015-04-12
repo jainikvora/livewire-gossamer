@@ -29,30 +29,20 @@ import poke.core.Mgmt.RaftMessage;
 import poke.resources.data.ClientInfo;
 import poke.resources.data.MgmtResponse;
 import poke.resources.data.DAO.ClientDAO;
-import poke.resources.data.DAO.ImageDAO;
+import poke.resources.data.DAO.ImageStoreProxy;
+import poke.resources.data.DAO.ImageStoreProxy.ImageStoreMethod;
 import poke.server.conf.ServerConf;
 import poke.server.management.ManagementQueue;
 import poke.server.managers.RaftManager;
 import poke.server.queue.PerChannelQueue;
 
-import com.amazonaws.services.config.model.LastDeliveryChannelDeleteFailedException;
 import com.google.protobuf.ByteString;
 
 public class ImageResource extends Thread implements ClientResource {
 
 	private Map<Integer, ClientInfo> clientMap;
-
 	private Map<Integer, ClientInfo> clusterMap;
 	private ServerConf conf;
-
-	public void setConf(ServerConf conf) {
-		this.conf = conf;
-	}
-	
-	public ServerConf getConf(){
-		return this.conf;
-	}
-
 	private boolean forever = true;
 
 	private LinkedBlockingDeque<MgmtResponse> inbound = new LinkedBlockingDeque<MgmtResponse>();
@@ -60,7 +50,8 @@ public class ImageResource extends Thread implements ClientResource {
 	private static ImageResource imageResource;
 	// public static String imagePath = "./resources/tmp/";
 	public static String imagePath = "../../resources/tmp/";
-	private ImageDAO imageDao = new ImageDAO();
+
+	private ImageStoreProxy imageDao = new ImageStoreProxy(ImageStoreMethod.S3);
 
 	private ImageResource() {
 		clientMap = new HashMap<Integer, ClientInfo>();
@@ -347,5 +338,13 @@ public class ImageResource extends Thread implements ClientResource {
 			clusterMap.get(entry.getKey()).getChannel().getOutbound()
 					.add(imageResponse);
 		}
+	}
+	
+	public void setConf(ServerConf conf) {
+		this.conf = conf;
+	}
+	
+	public ServerConf getConf(){
+		return this.conf;
 	}
 }
