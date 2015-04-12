@@ -24,17 +24,17 @@ public class ClientDAO {
 
 			if (!resultset.next()) {
 				preparedStatement = connection
-						.prepareStatement("insert into  clientdetails values (?, ?, ?)");
+						.prepareStatement("insert into  ClientDetails(NodeID, ClientID, SentIndex) values (?, ?, ?)");
 
 				preparedStatement.setString(1, NodeID);
 				preparedStatement.setString(2, ClientID);
 				preparedStatement.setLong(3, SentIndex);
+				
 				System.out.println(preparedStatement.executeUpdate());
 
 				return SentIndex;
 
 			}
-
 			else {
 				System.out
 						.println("Select * from clientdetails where ClientID = "
@@ -43,11 +43,9 @@ public class ClientDAO {
 						.executeQuery("Select * from clientdetails where ClientID = "
 								+ "'" + ClientID + "'");
 				resultset1.next();
-				System.out.println(resultset1.getString("NodeID"));
-				System.out.println(resultset1.getString("NodeID")
+				System.out.println(resultset1.getString("NodeID") + " == " + NodeID + ": "+ resultset1.getString("NodeID")
 						.equals(NodeID));
-				if (!(resultset1.getString("NodeID").equals(NodeID))) {
-					// System.out.println("UPDATE clientdetails SET NodeID = "+NodeID+" WHERE ClientID = "+"'"+ClientID+"'");
+				if (!(resultset1.getString("NodeID").equals(NodeID))) { //ServerID is different, then update the ServerID for that Client and set new ServerID
 					preparedStatement = connection
 							.prepareStatement("UPDATE clientdetails SET NodeID = "
 									+ "'"
@@ -55,7 +53,6 @@ public class ClientDAO {
 									+ " ' WHERE ClientID = "
 									+ "'" + ClientID + "'");
 					// System.out.println(preparedStatement.executeUpdate());
-
 					return resultset1.getLong("SentIndex");
 				}
 
