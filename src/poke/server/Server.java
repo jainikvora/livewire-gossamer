@@ -323,7 +323,9 @@ public class Server {
 		mthread.start();
 		
 		ImageResource imageResource = ImageResource.getInstance();
+		imageResource.setConf(conf);
 		imageResource.start();
+		
 
 		StartCommunication comm = new StartCommunication(conf);
 		logger.info("Server " + conf.getNodeId() + " ready");
