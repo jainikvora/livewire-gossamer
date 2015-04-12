@@ -29,6 +29,7 @@ public class SnapResource implements Resource {
 	public poke.comm.Image.Request process(poke.comm.Image.Request request) {
 				
 		logger.info("poke: " + request.getHeader().getCaption());
+		logger.info("Req id is : " + request.getPayload().getReqId());
 		
 		logger.info("From Snap resource handler!!");
 		
