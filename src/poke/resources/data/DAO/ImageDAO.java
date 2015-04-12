@@ -20,16 +20,14 @@ import org.apache.commons.net.ftp.FTPClient;
 public class ImageDAO {
 	private static String bucketName = "cmpe275";
 	FTPClient ftpClient = new FTPClient();
-	String server = "www.myserver.com";
+	String server = "10.0.1.2";
 	int port = 21;
-	String user = "Public";
+	String user = "public";
 	String pass = "";
 
 	public boolean uploadImage(String keyName) {
 		String uploadFileName = ImageResource.imagePath + keyName + ".png";
 
-		// AmazonS3 s3client = new AmazonS3Client(new
-		// ProfileCredentialsProvider());
 		boolean result = false;
 
 		try {
@@ -40,18 +38,17 @@ public class ImageDAO {
 
 			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
-			// APPROACH #1: uploads first file using an InputStream
 			File firstLocalFile = new File(uploadFileName);
 
-			String firstRemoteFile = "Projects.zip";
+			String firstRemoteFile = keyName + ".png";
 			InputStream inputStream = new FileInputStream(firstLocalFile);
 
-			System.out.println("Start uploading first file");
+			System.out.println("Uploading file...");
 			boolean done = ftpClient.storeFile(firstRemoteFile, inputStream);
 			inputStream.close();
 
 			if (done) {
-				System.out.println("The Image is uploaded successfully!!");
+				System.out.println("File uploaded successfully!!");
 				result = true;
 			}
 
@@ -77,9 +74,7 @@ public class ImageDAO {
 
 	public boolean getImage(String keyName) {
 		String downloadFileName = ImageResource.imagePath + keyName + ".png";
-
-		// AmazonS3 s3Client = new AmazonS3Client(new
-		// ProfileCredentialsProvider());
+		
 		boolean result = false;
 
 		try {
@@ -89,18 +84,17 @@ public class ImageDAO {
 			ftpClient.enterLocalPassiveMode();
 			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
-			// APPROACH #1: using retrieveFile(String, OutputStream)
-			String remoteFile1 = "/test/" + downloadFileName;
+			String remoteFileName = keyName + ".png";
 
-			File downloadFile1 = new File(downloadFileName);
-			OutputStream outputStream1 = new BufferedOutputStream(
-					new FileOutputStream(downloadFile1));
+			File downloadFile = new File(downloadFileName);
+			OutputStream outputStream = new BufferedOutputStream(
+					new FileOutputStream(downloadFile));
 			boolean success = ftpClient
-					.retrieveFile(remoteFile1, outputStream1);
-			outputStream1.close();
+					.retrieveFile(remoteFileName, outputStream);
+			outputStream.close();
 
 			if (success) {
-				System.out.println("Image has been downloaded successfully!!");
+				System.out.println("File downloaded successfully!!");
 				result = true;
 			}
 
