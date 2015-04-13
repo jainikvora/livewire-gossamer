@@ -323,6 +323,7 @@ public class Raft implements Election {
 		setVotedForInTerm(0);
 		logger.info("Node " + getNodeId() + " declares itself as a Leader ");
 		reinitializeIndexes();
+		ImageResource.getInstance().setLeader();
 		return getAppendRequest();
 	}
 
