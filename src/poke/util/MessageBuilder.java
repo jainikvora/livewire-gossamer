@@ -29,6 +29,7 @@ public class MessageBuilder {
 		// header with routing info
 		Header.Builder h = Header.newBuilder();
 		h.setClientId(-1);
+		h.setClusterId(3);
 		h.setCaption("Ping Message");
 		h.setIsClient(false);
 
