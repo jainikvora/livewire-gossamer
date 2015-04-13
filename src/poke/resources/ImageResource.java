@@ -32,9 +32,13 @@ import poke.resources.data.DAO.ClientDAO;
 import poke.resources.data.DAO.ImageStoreProxy;
 import poke.resources.data.DAO.ImageStoreProxy.ImageStoreMethod;
 import poke.server.conf.ServerConf;
+import poke.server.conf.ServerList;
+import poke.server.conf.ServerList.TCPAddress;
 import poke.server.management.ManagementQueue;
 import poke.server.managers.RaftManager;
 import poke.server.queue.PerChannelQueue;
+import poke.util.ChannelCreator;
+import poke.util.MessageBuilder;
 
 import com.google.protobuf.ByteString;
 
@@ -44,6 +48,9 @@ public class ImageResource extends Thread implements ClientResource {
 	private Map<Integer, ClientInfo> clusterMap;
 	private ServerConf conf;
 	private boolean forever = true;
+	private ServerList serverList = null;
+	private boolean isLeader =false;
+	private boolean clustersConnected = false;
 
 	private LinkedBlockingDeque<MgmtResponse> inbound = new LinkedBlockingDeque<MgmtResponse>();
 
@@ -56,6 +63,7 @@ public class ImageResource extends Thread implements ClientResource {
 	private ImageResource() {
 		clientMap = new HashMap<Integer, ClientInfo>();
 		clusterMap = new HashMap<Integer, ClientInfo>();
+		serverList = ServerList.getInstance();
 	}
 
 	public static ImageResource getInstance() {
@@ -94,6 +102,10 @@ public class ImageResource extends Thread implements ClientResource {
 	public ClientInfo getClusterInfo(int clusterId) {
 		return clusterMap.get(clusterId);
 	}
+	
+	public void setLeader(){
+		this.isLeader = true;
+	}
 
 	@Override
 	public void run() {
@@ -103,6 +115,11 @@ public class ImageResource extends Thread implements ClientResource {
 
 			try {
 				// block until a message is enqueued
+				if(isLeader && !clustersConnected){
+					createChannelForClustures();
+					clustersConnected = true;
+				}
+				
 				MgmtResponse mgmt = this.inbound.take();
 				Request imageResponse = null;
 
@@ -168,8 +185,11 @@ public class ImageResource extends Thread implements ClientResource {
 		else {
 
 			Integer clusterId = request.getHeader().getClusterId();
-			if (!getClusterMap().containsKey(clusterId)) {
+			if (!getClusterMap().containsKey(clusterId) ) {
+				if(isLeader){
 				addCluster(clusterId, new ClientInfo(channel, 0, true));
+				channel.getOutbound().add(MessageBuilder.buildPingMessage());
+				}
 			} else {
 				getClusterInfo(clusterId).setChannel(channel);
 			}
@@ -178,7 +198,7 @@ public class ImageResource extends Thread implements ClientResource {
 
 		boolean stored = storeImageInS3(request);
 		if (stored) {
-			Management mgmtMessage = buildMgmtMessage(request);
+			Management mgmtMessage = MessageBuilder.buildMgmtMessage(request);
 			ManagementQueue.enqueueRequest(mgmtMessage, null);
 		}
 
@@ -230,78 +250,13 @@ public class ImageResource extends Thread implements ClientResource {
 			baos.close();
 			ByteString bs = ByteString.copyFrom(myByeImage);
 			image.delete();
-			return buildRequestMessage(mgmt, bs);
+			return MessageBuilder.buildRequestMessage(mgmt, bs);
 		} else {
 			throw new IOException();
 		}
 	}
 
-	private Management buildMgmtMessage(Request request) {
 
-		NameValueSet.Builder nameAndValue = NameValueSet.newBuilder();
-		nameAndValue.setName(request.getHeader().getCaption());
-		nameAndValue.setValue(request.getPayload().getReqId());
-
-		DataSet.Builder dataSet = DataSet.newBuilder();
-		dataSet.setKey(request.getPayload().getReqId());
-		if (request.getHeader().getIsClient())
-			dataSet.setClientId(request.getHeader().getClientId());
-		else
-			dataSet.setClientId(-1);
-		dataSet.setDataSet(nameAndValue.build());
-
-		LogEntry.Builder logEntry = LogEntry.newBuilder();
-		logEntry.setAction(LogEntry.DataAction.INSERT);
-		logEntry.setTerm(-1);
-		logEntry.setData(dataSet.build());
-
-		LogEntryList.Builder logList = LogEntryList.newBuilder();
-		logList.addEntry(logEntry.build());
-
-		RaftMessage.Builder rmb = RaftMessage.newBuilder();
-		rmb.setAction(RaftMessage.Action.CLIENTREQUEST);
-		rmb.setEntries(logList.build());
-		rmb.setTerm(-1);
-
-		MgmtHeader.Builder mhb = MgmtHeader.newBuilder();
-		mhb.setOriginator(-1);
-		mhb.setTime(System.currentTimeMillis());
-		mhb.setSecurityCode(-999); // TODO add security
-
-		Management.Builder mb = Management.newBuilder();
-		mb.setHeader(mhb.build());
-		mb.setRaftMessage(rmb.build());
-
-		return mb.build();
-
-	}
-
-	private Request buildRequestMessage(MgmtResponse mgmt, ByteString bs) {
-
-		Request.Builder r = Request.newBuilder();
-
-		PayLoad.Builder p = PayLoad.newBuilder();
-		p.setReqId(mgmt.getDataSet().getKey());
-		p.setData(bs);
-
-		r.setPayload(p.build());
-
-		// header with routing info
-		Header.Builder h = Header.newBuilder();
-		h.setClientId(mgmt.getDataSet().getClientId());
-		h.setCaption(mgmt.getDataSet().getDataSet().getName());
-		h.setIsClient(false);
-
-		r.setHeader(h.build());
-
-		Ping.Builder pg = Ping.newBuilder();
-		pg.setIsPing(false);
-
-		r.setPing(pg.build());
-
-		return r.build();
-
-	}
 
 	public void processRequestFromMgmt(List<MgmtResponse> list) {
 
@@ -337,6 +292,14 @@ public class ImageResource extends Thread implements ClientResource {
 					.next();
 			clusterMap.get(entry.getKey()).getChannel().getOutbound()
 					.add(imageResponse);
+		}
+	}
+	
+	private void createChannelForClustures(){
+		List<TCPAddress> nodes = this.serverList.addresses;
+		for(TCPAddress node: nodes){
+			ChannelCreator.getInstance().createChannelToNode(node);
+			ChannelCreator.getInstance().allNodeChannels.get(node).writeAndFlush(MessageBuilder.buildPingMessage());  	//send hello message - ping message
 		}
 	}
 	
