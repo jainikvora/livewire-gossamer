@@ -17,17 +17,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.imageio.ImageIO;
 
-import poke.comm.Image.Header;
-import poke.comm.Image.PayLoad;
-import poke.comm.Image.Ping;
 import poke.comm.Image.Request;
-import poke.core.Mgmt.DataSet;
-import poke.core.Mgmt.LogEntry;
-import poke.core.Mgmt.LogEntryList;
 import poke.core.Mgmt.Management;
-import poke.core.Mgmt.MgmtHeader;
-import poke.core.Mgmt.NameValueSet;
-import poke.core.Mgmt.RaftMessage;
 import poke.resources.data.ClientInfo;
 import poke.resources.data.MgmtResponse;
 import poke.resources.data.DAO.ClientDAO;
@@ -108,7 +99,9 @@ public class ImageResource extends Thread implements ClientResource {
 	}
 	
 	public void setLeader(){
+		System.out.println(" *********** Node is set as leader **************");
 		this.isLeader = true;
+		/**/
 	}
 
 	@Override
@@ -119,25 +112,34 @@ public class ImageResource extends Thread implements ClientResource {
 
 			try {
 				// block until a message is enqueued
-				if(isLeader && !clustersConnected){
-					createChannelForClustures();
-					clustersConnected = true;
-				}
+			
 				
 				MgmtResponse mgmt = this.inbound.take();
-				Request imageResponse = null;
+				System.out.println("Is leader: " + mgmt.isLeader());
+				if(mgmt.isLeader() == true){
+					
+					System.out.println("Is leader: " + isLeader);
+					System.out.println("Cluster connected: " + !clustersConnected);
+					if(isLeader && !clustersConnected){
+						System.out.println("Is leader and connecting to cluster");
+						createChannelForClustures();
+						clustersConnected = true;
+						
+					}
+				} else {
+					Request imageResponse = null;
 
-				try {
-					imageResponse = getImageFromS3(mgmt);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					try {
+						imageResponse = getImageFromS3(mgmt);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if (mgmt.getDataSet().getClientId() != -1)
+						sendImageToClusters(mgmt, imageResponse);
+
+					sendImageToClients(mgmt, imageResponse);
 				}
-				if (mgmt.getDataSet().getClientId() != -1)
-					sendImageToClusters(mgmt, imageResponse);
-
-				sendImageToClients(mgmt, imageResponse);
-
 			}
 
 			catch (InterruptedException ie) {
@@ -191,6 +193,7 @@ public class ImageResource extends Thread implements ClientResource {
 			Integer clusterId = request.getHeader().getClusterId();
 			if (!getClusterMap().containsKey(clusterId) ) {
 				if(isLeader){
+					System.out.println("Adding cluster to network: " + clusterId);
 				addCluster(clusterId, new ClientInfo(channel, 0, true));
 				channel.getOutbound().add(MessageBuilder.buildPingMessage());
 				}
@@ -263,7 +266,7 @@ public class ImageResource extends Thread implements ClientResource {
 
 
 	public void processRequestFromMgmt(List<MgmtResponse> list) {
-
+		System.out.println("Putting msg in inbout - Imageresource");
 		inbound.addAll(list);
 
 	}
@@ -313,9 +316,12 @@ public class ImageResource extends Thread implements ClientResource {
 	
 	private void createChannelForClustures(){
 		List<TCPAddress> nodes = this.serverList.addresses;
+		System.out.println("Number of nodes: " + nodes.size());
 		for(TCPAddress node: nodes){
+			System.out.println("Sending ping to other cluster");
 			ChannelCreator.getInstance().createChannelToNode(node);
 			ChannelCreator.getInstance().allNodeChannels.get(node).writeAndFlush(MessageBuilder.buildPingMessage());  	//send hello message - ping message
+			System.out.println("Cluster connections successful");
 		}
 	}
 	

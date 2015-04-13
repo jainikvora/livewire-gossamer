@@ -50,7 +50,7 @@ public class ChannelCreator {
 			b.childHandler(new ServerInitializer(compressComm));
 
 			// Start the server.
-			System.out.println("Starting server " + address.host + ", listening on port = " + address.port);
+			System.out.println("Connecting server " + address.host + ", listening on port = " + address.port);
 			ChannelFuture f = b.bind(address.port).syncUninterruptibly();
 			if(f.isDone() && f.isSuccess())
 				allNodeChannels.put(address, f.channel());
