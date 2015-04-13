@@ -323,7 +323,15 @@ public class Raft implements Election {
 		setVotedForInTerm(0);
 		logger.info("Node " + getNodeId() + " declares itself as a Leader ");
 		reinitializeIndexes();
+		
+		// notifying ImageResource that the node is leader
 		ImageResource.getInstance().setLeader();
+		List<MgmtResponse> resourceList = new ArrayList<MgmtResponse>();
+		MgmtResponse response = new MgmtResponse();
+		response.setLeader(true);
+		resourceList.add(response);
+		ImageResource.getInstance().processRequestFromMgmt(resourceList);
+		
 		return getAppendRequest();
 	}
 
@@ -383,6 +391,7 @@ public class Raft implements Election {
 						MgmtResponse response = new MgmtResponse();
 						response.setLogIndex(i);
 						response.setDataSet(log.getEntry(i).getData());
+						response.setLeader(false);
 						resourceList.add(response);
 					}
 					ImageResource.getInstance().processRequestFromMgmt(resourceList);
@@ -407,6 +416,7 @@ public class Raft implements Election {
 				MgmtResponse response = new MgmtResponse();
 				response.setLogIndex(i);
 				response.setDataSet(log.getEntry(i).getData());
+				response.setLeader(false);
 				resourceList.add(response);
 			}
 			ImageResource.getInstance().processRequestFromMgmt(resourceList);

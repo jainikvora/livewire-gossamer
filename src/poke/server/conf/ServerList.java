@@ -12,7 +12,7 @@ public class ServerList {
 	private String filePath;
 	
 	private ServerList() {
-		filePath = "./resources/server_list.conf";
+		filePath = "../../resources/server_list.conf";
 		addresses = new ArrayList<TCPAddress>();
 		populateAddresses();
 	}
