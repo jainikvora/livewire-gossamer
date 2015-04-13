@@ -1,5 +1,7 @@
 package poke.resources;
 
+import io.netty.channel.Channel;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,6 +53,7 @@ public class ImageResource extends Thread implements ClientResource {
 	private ServerList serverList = null;
 	private boolean isLeader =false;
 	private boolean clustersConnected = false;
+	private String nodeId;
 
 	private LinkedBlockingDeque<MgmtResponse> inbound = new LinkedBlockingDeque<MgmtResponse>();
 
@@ -58,8 +61,9 @@ public class ImageResource extends Thread implements ClientResource {
 	// public static String imagePath = "./resources/tmp/";
 	public static String imagePath = "../../resources/tmp/";
 
-	private ImageStoreProxy imageDao = new ImageStoreProxy(ImageStoreMethod.S3);
-
+	private ImageStoreProxy imageDao = new ImageStoreProxy(ImageStoreMethod.FTP);
+	private ClientDAO clientDao = new ClientDAO();
+	
 	private ImageResource() {
 		clientMap = new HashMap<Integer, ClientInfo>();
 		clusterMap = new HashMap<Integer, ClientInfo>();
@@ -161,8 +165,8 @@ public class ImageResource extends Thread implements ClientResource {
 			if (!getClientMap().containsKey(clientId)) {
 				addClient(clientId, new ClientInfo(channel, 0, false));
 				//register the client or update its entry
-				Long sentIndex = new ClientDAO().updateClientEntry(Integer.toString(conf.getNodeId()), 
-						Integer.toString(clientId), RaftManager.getInstance().getLastLogIndex());
+				Long sentIndex = clientDao.updateClientEntry(this.nodeId, 
+						String.valueOf(clientId), RaftManager.getInstance().getLastLogIndex());
 				System.out.println("***************LAST INDEX******************"+sentIndex);
 				if(sentIndex != RaftManager.getInstance().getLastLogIndex()) {
 					List<MgmtResponse> list = RaftManager.getInstance().getDataSetFromIndex(sentIndex);
@@ -290,8 +294,20 @@ public class ImageResource extends Thread implements ClientResource {
 		while (iterator.hasNext()) {
 			Entry<Integer, ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator
 					.next();
-			clusterMap.get(entry.getKey()).getChannel().getOutbound()
+			Channel channel = clientMap.get(entry.getKey()).getChannel().getChannel();
+			if(channel != null && channel.isOpen() && channel.isWritable()) {
+				if (entry.getKey() != mgmt.getDataSet().getClientId()
+						&& entry.getValue().getLastSentIndex() < mgmt.getLogIndex()) {
+					
+					clientMap.get(entry.getKey()).getChannel().getOutbound()
 					.add(imageResponse);
+					//update lastsentindex		
+				}
+				System.out.println("***************mgmt.getLogIndex()*************** "+mgmt.getLogIndex());
+				clientDao.updateClientEntry(this.nodeId, String.valueOf(entry.getKey()), mgmt.getLogIndex());
+			}
+			
+			
 		}
 	}
 	
@@ -305,6 +321,7 @@ public class ImageResource extends Thread implements ClientResource {
 	
 	public void setConf(ServerConf conf) {
 		this.conf = conf;
+		this.nodeId = String.valueOf(conf.getNodeId());
 	}
 	
 	public ServerConf getConf(){

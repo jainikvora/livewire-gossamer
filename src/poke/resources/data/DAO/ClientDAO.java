@@ -15,7 +15,7 @@ public class ClientDAO {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost/cmpe275", "root", "");
+					"jdbc:mysql://10.0.1.2/cmpe275", "root", "root");
 			statement = connection.createStatement();
 			statement1 = connection.createStatement();
 			resultset = statement

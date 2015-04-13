@@ -54,7 +54,8 @@ public class ClientPrintListener implements CommListener {
 
 	@Override
 	public void onMessage(Request msg) {
-		String imgName = Integer.toString(i)+".png";
+		i++;
+		String imgName = msg.getPayload().getReqId()+".png";
 		System.out.println("Received message from server!!");
 		System.out.println("Payload" + msg.getPayload().toString());
 		System.out.println("Req" + msg.toString());
