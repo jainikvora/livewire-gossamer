@@ -16,10 +16,10 @@ import poke.client.ClientCommand;
 import poke.client.ClientPrintListener;
 import poke.client.comm.CommListener;
 
-public class ClientOne {
+public class ClientTwo {
 
     int clientID;
-	public ClientOne(int clientID) {
+	public ClientTwo(int clientID) {
 		this.clientID = clientID;
 	}
 
@@ -51,12 +51,12 @@ public class ClientOne {
 	public static void main(String[] args) {
 		try {
 			ClientCommand cc = new ClientCommand("localhost", 5570);
-			CommListener listener = new ClientPrintListener("First Client");
+			CommListener listener = new ClientPrintListener("Second Client");
 			cc.addListener(listener);
 
-			ClientOne cone = new ClientOne(1);
+			ClientTwo cone = new ClientTwo(2);
 			
-			for(int i=1 ; i < 5 ; i++)
+			for(int i=3 ; i < 6; i++)
 			{
 			System.out.println("Sending Image " + i);
 			cone.run(cc ,  Integer.toString(i)+".png");
