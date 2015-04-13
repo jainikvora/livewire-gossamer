@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -50,19 +51,39 @@ public class ClientTwo {
 
 	public static void main(String[] args) {
 		try {
+			
+			Scanner sc = new Scanner(System.in);
+			
 			ClientCommand cc = new ClientCommand("localhost", 5570);
 			CommListener listener = new ClientPrintListener("Second Client");
 			cc.addListener(listener);
 
 			ClientTwo cone = new ClientTwo(2);
 			
-			for(int i=3 ; i < 6; i++)
-			{
-			System.out.println("Sending Image " + i);
-			cone.run(cc ,  Integer.toString(i)+".png");
+			
+			String clientInput = "";
+
+			do {
+
+				System.out.println("Do you want to send an image (Y/N)?");
+				clientInput = sc.nextLine();
+
+				if (clientInput != null && "Y".equalsIgnoreCase(clientInput)) {
+
+					for(int i=3 ; i < 6; i++)
+					{
+					System.out.println("Sending Image " + i);
+					cone.run(cc ,  Integer.toString(i)+".png");
+					}
+				}
+
 			}
+
+			while (!"N".equalsIgnoreCase(clientInput));
+			
+			
 			// we are running asynchronously
-			System.out.println("\nExiting in 150 seconds");
+			System.out.println("\nExiting in few seconds");
 			Thread.sleep(150000000);
 			System.exit(0);
 
