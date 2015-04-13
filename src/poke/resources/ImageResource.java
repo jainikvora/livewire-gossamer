@@ -202,11 +202,12 @@ public class ImageResource extends Thread implements ClientResource {
 			}
 
 		}
-
+		if(!request.getPing().getIsPing()){
 		boolean stored = storeImageInS3(request);
 		if (stored) {
 			Management mgmtMessage = MessageBuilder.buildMgmtMessage(request);
 			ManagementQueue.enqueueRequest(mgmtMessage, null);
+		}
 		}
 
 	}

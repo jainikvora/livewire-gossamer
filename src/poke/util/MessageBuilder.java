@@ -22,7 +22,8 @@ public class MessageBuilder {
 		Request.Builder r = Request.newBuilder();
 
 		PayLoad.Builder p = PayLoad.newBuilder();
-		p.setData(null);
+		byte[] bytes = new byte[3];
+		p.setData(ByteString.copyFrom(bytes));
 
 		r.setPayload(p.build());
 

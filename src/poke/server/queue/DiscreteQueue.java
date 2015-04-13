@@ -115,7 +115,7 @@ public class DiscreteQueue implements ChannelQueue {
 		;
 	}
 
-	@Override
+	
 	public void enqueueRequest(Request req, Channel channel) {
 		if (req == null || channel == null)
 			return;
@@ -183,7 +183,7 @@ public class DiscreteQueue implements ChannelQueue {
 		}
 	}
 
-	@Override
+	
 	public void enqueueResponse(Request reply, Channel channel) {
 		if (reply == null)
 			return;
@@ -238,4 +238,18 @@ public class DiscreteQueue implements ChannelQueue {
 			}
 		}
 	}
+
+	@Override
+	public void enqueueRequest(poke.comm.Image.Request req, Channel channel) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enqueueResponse(poke.comm.Image.Request reply, Channel channel) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

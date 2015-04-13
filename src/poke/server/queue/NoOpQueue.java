@@ -41,14 +41,26 @@ public class NoOpQueue implements ChannelQueue {
 		logger.info(queueName + ": queue shutting down");
 	}
 
-	@Override
+	
 	public void enqueueRequest(Request req, Channel notused) {
 		logger.info(queueName + ": request received");
 	}
 
-	@Override
+	
 	public void enqueueResponse(Request reply, Channel notused) {
 		logger.info(queueName + ": response received");
+	}
+
+	@Override
+	public void enqueueRequest(poke.comm.Image.Request req, Channel channel) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enqueueResponse(poke.comm.Image.Request reply, Channel channel) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
