@@ -41,6 +41,7 @@ public class ClientPrintListener implements CommListener {
 	protected static Logger logger = LoggerFactory.getLogger("connect");
 
 	private String id;
+	int i = 0;
 
 	public ClientPrintListener(String id) {
 		this.id = id;
@@ -53,8 +54,10 @@ public class ClientPrintListener implements CommListener {
 
 	@Override
 	public void onMessage(Request msg) {
-		
-		System.out.println("Received ping message from server!!");
+		String imgName = Integer.toString(i)+".png";
+		System.out.println("Received message from server!!");
+		System.out.println("Payload" + msg.getPayload().toString());
+		System.out.println("Req" + msg.toString());
 		
 		try{
 			byte[] byteImage = msg.getPayload().getData().toByteArray();
@@ -64,7 +67,7 @@ public class ClientPrintListener implements CommListener {
 		        BufferedImage bImageFromConvert = ImageIO.read(in);
 
 		        ImageIO.write(bImageFromConvert, "png", new File(
-		                "./resources/tmp/test123.png"));
+		                "./resources/clientReceivedImages/"+imgName));
 		}
 		catch (IOException e)
 		{

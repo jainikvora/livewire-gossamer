@@ -16,10 +16,10 @@ import poke.client.ClientCommand;
 import poke.client.ClientPrintListener;
 import poke.client.comm.CommListener;
 
-public class ClientOne {
+public class ClientThree {
 
     int clientID;
-	public ClientOne(int clientID) {
+	public ClientThree(int clientID) {
 		this.clientID = clientID;
 	}
 
@@ -51,16 +51,15 @@ public class ClientOne {
 	public static void main(String[] args) {
 		try {
 			ClientCommand cc = new ClientCommand("localhost", 5570);
-			CommListener listener = new ClientPrintListener("First Client");
+			CommListener listener = new ClientPrintListener("Third Client");
 			cc.addListener(listener);
 
-			ClientOne cone = new ClientOne(1);
+			ClientThree cone = new ClientThree(3);
 			
-			for(int i=1 ; i < 5 ; i++)
-			{
-			System.out.println("Sending Image " + i);
-			cone.run(cc ,  Integer.toString(i)+".png");
-			}
+			
+			System.out.println("Sending Image ");
+			cone.run(cc ,  "7.png");
+			
 			// we are running asynchronously
 			System.out.println("\nExiting in 150 seconds");
 			Thread.sleep(150000000);
