@@ -1,12 +1,12 @@
 package poke.util;
 
-import io.netty.bootstrap.ServerBootstrap;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class ChannelCreator {
 	
 	public void createChannelToNode(TCPAddress address){
 		
-		EventLoopGroup bossGroup = new NioEventLoopGroup();
+		/*EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
@@ -67,7 +67,33 @@ public class ChannelCreator {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
 		}
+*/
+		
+		EventLoopGroup group = new NioEventLoopGroup();
+		try {
+		
+			Bootstrap b = new Bootstrap();
+			b.group(group).channel(NioSocketChannel.class).handler(new ServerInitializer(false));
+			b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
+			b.option(ChannelOption.TCP_NODELAY, true);
+			b.option(ChannelOption.SO_KEEPALIVE, true);
+			System.out.println("Starting server " + address.host + ", listening on port = " + address.port);
+			// Make the connection attempt.
+			ChannelFuture channel = b.connect(address.host, address.port).syncUninterruptibly();
+			if(channel.isDone() && channel.isSuccess())
+				allNodeChannels.put(address, channel.channel());
+			System.out.println(channel.isSuccess());
+			System.out.println("channel established");
+			
+			// want to monitor the connection to the server s.t. if we loose the
+			// connection, we can try to re-establish it.
+			//ClientClosedListener ccl = new ClientClosedListener(this);
+			//channel.channel().closeFuture().addListener(ccl);
+			channel.channel().closeFuture().sync();
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
 
+		}
 	}
 
 }
