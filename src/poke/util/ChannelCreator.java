@@ -89,7 +89,7 @@ public class ChannelCreator {
 			// connection, we can try to re-establish it.
 			//ClientClosedListener ccl = new ClientClosedListener(this);
 			//channel.channel().closeFuture().addListener(ccl);
-			channel.channel().closeFuture().sync();
+			//channel.channel().closeFuture().sync();
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 

@@ -1,6 +1,7 @@
 package poke.resources;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -135,7 +136,7 @@ public class ImageResource extends Thread implements ClientResource {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					if (mgmt.getDataSet().getClientId() != -1)
+					if (isLeader && mgmt.getDataSet().getClientId() != -1)
 						sendImageToClusters(mgmt, imageResponse);
 
 					sendImageToClients(mgmt, imageResponse);
@@ -292,23 +293,22 @@ public class ImageResource extends Thread implements ClientResource {
 	}
 
 	private void sendImageToClusters(MgmtResponse mgmt, Request imageResponse) {
-
+		
+		System.out.println("Sending image to clusters - cluster size" + clusterMap.size());
 		Iterator<Entry<Integer, ClientInfo>> iterator = clusterMap.entrySet()
 				.iterator();
 		while (iterator.hasNext()) {
+			System.out.println("sending...");
 			Entry<Integer, ClientInfo> entry = (Entry<Integer, ClientInfo>) iterator
 					.next();
-			Channel channel = clientMap.get(entry.getKey()).getChannel().getChannel();
+			Channel channel = clusterMap.get(entry.getKey()).getChannel().getChannel();
 			if(channel != null && channel.isOpen() && channel.isWritable()) {
-				if (entry.getKey() != mgmt.getDataSet().getClientId()
-						&& entry.getValue().getLastSentIndex() < mgmt.getLogIndex()) {
-					
-					clientMap.get(entry.getKey()).getChannel().getOutbound()
+				System.out.println("sending..." + entry.getKey());
+					clusterMap.get(entry.getKey()).getChannel().getOutbound()
 					.add(imageResponse);
 					//update lastsentindex		
-				}
 				System.out.println("***************mgmt.getLogIndex()*************** "+mgmt.getLogIndex());
-				clientDao.updateClientEntry(this.nodeId, String.valueOf(entry.getKey()), mgmt.getLogIndex());
+				//clientDao.updateClientEntry(this.nodeId, String.valueOf(entry.getKey()), mgmt.getLogIndex());
 			}
 			
 			
@@ -321,7 +321,9 @@ public class ImageResource extends Thread implements ClientResource {
 		for(TCPAddress node: nodes){
 			System.out.println("Sending ping to other cluster");
 			ChannelCreator.getInstance().createChannelToNode(node);
-			ChannelCreator.getInstance().allNodeChannels.get(node).writeAndFlush(MessageBuilder.buildPingMessage());  	//send hello message - ping message
+			Channel channel = ChannelCreator.getInstance().allNodeChannels.get(node);
+			ChannelFuture cf = channel.writeAndFlush(MessageBuilder.buildPingMessage()).syncUninterruptibly();
+			if(cf.isDone())
 			System.out.println("Cluster connections successful");
 		}
 	}
