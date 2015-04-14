@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 
+import poke.client.comm.CommConnection.ClientClosedListener;
 import poke.server.ServerInitializer;
 import poke.server.conf.ServerList.TCPAddress;
 
@@ -31,7 +32,7 @@ public class ChannelCreator {
 		return channelCreator;
 	}
 	
-	public void createChannelToNode(TCPAddress address){
+	public boolean createChannelToNode(TCPAddress address){
 		
 		/*EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -80,19 +81,25 @@ public class ChannelCreator {
 			System.out.println("Starting server " + address.host + ", listening on port = " + address.port);
 			// Make the connection attempt.
 			ChannelFuture channel = b.connect(address.host, address.port).syncUninterruptibly();
-			if(channel.isDone() && channel.isSuccess())
+			if(channel.isDone() && channel.isSuccess()){
 				allNodeChannels.put(address, channel.channel());
-			System.out.println(channel.isSuccess());
-			System.out.println("channel established");
+				System.out.println(channel.isSuccess());
+				System.out.println("channel established");
+				return true;
+				}
+			else{
+				System.out.println("Channel false..");
+				return false;
+			}
 			
 			// want to monitor the connection to the server s.t. if we loose the
 			// connection, we can try to re-establish it.
-			//ClientClosedListener ccl = new ClientClosedListener(this);
+			//ClientClosedListener ccl = new ClientClosedListener(this,address);
 			//channel.channel().closeFuture().addListener(ccl);
 			//channel.channel().closeFuture().sync();
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
-
+			return false;
 		}
 	}
 

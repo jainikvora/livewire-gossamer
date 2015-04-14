@@ -76,6 +76,7 @@ public class ImageResource extends Thread implements ClientResource {
 	private synchronized void addCluster(Integer clusterId,
 			ClientInfo clientInfo) {
 		clusterMap.put(clusterId, clientInfo);
+		System.out.println(clusterMap.size());
 	}
 
 	private synchronized Map<Integer, ClientInfo> getClientMap() {
@@ -129,16 +130,19 @@ public class ImageResource extends Thread implements ClientResource {
 					}
 				} else {
 					Request imageResponse = null;
-
+					System.out.println("Sending***************");
 					try {
 						imageResponse = getImageFromS3(mgmt);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					
+					System.out.println("666666666666666");
 					if (isLeader && mgmt.getDataSet().getClientId() != -1)
 						sendImageToClusters(mgmt, imageResponse);
 
+					System.out.println("99999999999999999999");
 					sendImageToClients(mgmt, imageResponse);
 				}
 			}
@@ -190,7 +194,7 @@ public class ImageResource extends Thread implements ClientResource {
 		}
 
 		else {
-
+			System.out.println("message from clusture......");
 			Integer clusterId = request.getHeader().getClusterId();
 			if (!getClusterMap().containsKey(clusterId) ) {
 				if(isLeader){
@@ -204,6 +208,8 @@ public class ImageResource extends Thread implements ClientResource {
 
 		}
 		if(!request.getPing().getIsPing()){
+			System.out.println("receiving images......");
+			
 		boolean stored = storeImageInS3(request);
 		if (stored) {
 			Management mgmtMessage = MessageBuilder.buildMgmtMessage(request);
@@ -320,11 +326,16 @@ public class ImageResource extends Thread implements ClientResource {
 		System.out.println("Number of nodes: " + nodes.size());
 		for(TCPAddress node: nodes){
 			System.out.println("Sending ping to other cluster");
-			ChannelCreator.getInstance().createChannelToNode(node);
+			boolean done = ChannelCreator.getInstance().createChannelToNode(node);
+			if(done){
 			Channel channel = ChannelCreator.getInstance().allNodeChannels.get(node);
 			ChannelFuture cf = channel.writeAndFlush(MessageBuilder.buildPingMessage()).syncUninterruptibly();
 			if(cf.isDone())
 			System.out.println("Cluster connections successful");
+			}
+			else{
+				System.out.println("conection refused......");
+			}
 		}
 	}
 	
