@@ -22,6 +22,10 @@ public class ClientDAO {
 					.executeQuery("Select * from clientdetails where ClientID = "
 							+ "'" + ClientID + "'");
 
+			/**
+			 * This code checks if there is an entry for cleint
+			 * If not, we add it to the database
+			 */
 			if (!resultset.next()) {
 				preparedStatement = connection
 						.prepareStatement("insert into  ClientDetails(NodeID, ClientID, SentIndex) values (?, ?, ?)");
@@ -43,23 +47,23 @@ public class ClientDAO {
 						.executeQuery("Select * from clientdetails where ClientID = "
 								+ "'" + ClientID + "'");
 				resultset1.next();
-				System.out.println(resultset1.getString("NodeID") + " == " + NodeID + ": "+ resultset1.getString("NodeID")
-						.equals(NodeID));
-				if (!(resultset1.getString("NodeID").equals(NodeID))) { //ServerID is different, then update the ServerID for that Client and set new ServerID
+				/**
+				 * If ServerID is different, then update the ServerID for that Client and set new ServerID
+				 * and return the lastSentIndex for this client
+				 */
+				if (!(resultset1.getString("NodeID").equals(NodeID))) { 
 					preparedStatement = connection
 							.prepareStatement("UPDATE clientdetails SET NodeID = "
 									+ "'"
 									+ NodeID
 									+ " ' WHERE ClientID = "
 									+ "'" + ClientID + "'");
-					// System.out.println(preparedStatement.executeUpdate());
 					return resultset1.getLong("SentIndex");
 				}
-
+				/**
+				 * update the client and set the new sentIndex
+				 */
 				else {
-					// System.out.println("Called");
-					// System.out.println("UPDATE clientdetails SET SentIndex = "+"'"+SentIndex+"'"
-					// +"WHERE ClientID = "+"'"+ClientID+"'");
 					preparedStatement = connection
 							.prepareStatement("UPDATE clientdetails SET SentIndex = "
 									+ "'"
