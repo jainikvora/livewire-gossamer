@@ -41,6 +41,7 @@ import poke.server.storage.noop.VotingNoOpStorage;
 public class ServerConf {
 	private int nodeId = -1;
 	private String nodeName;
+	private String storageStrategy;  //added to decide storageStrategy from conf file.
 
 	private int numberOfElectionVotes = 1; // used to break ties in elections
 	private String forwardingImplementation;
@@ -78,6 +79,15 @@ public class ServerConf {
 
 	public int getPort() {
 		return port;
+	}
+
+	
+	public String getStorageStrategy() {
+		return storageStrategy;
+	}
+
+	public void setStorageStrategy(String storageStrategy) {
+		this.storageStrategy = storageStrategy;
 	}
 
 	public void setPort(int port) {

@@ -53,7 +53,7 @@ public class ImageResource extends Thread implements ClientResource {
 	// public static String imagePath = "./resources/tmp/";
 	public static String imagePath = "../../resources/tmp/";
 
-	private ImageStoreProxy imageDao = new ImageStoreProxy(ImageStoreMethod.FTP);
+	private ImageStoreProxy imageDao=null;
 	private ClientDAO clientDao = new ClientDAO();
 	
 	private ImageResource() {
@@ -342,6 +342,7 @@ public class ImageResource extends Thread implements ClientResource {
 	public void setConf(ServerConf conf) {
 		this.conf = conf;
 		this.nodeId = String.valueOf(conf.getNodeId());
+		this.imageDao = new ImageStoreProxy(conf.getStorageStrategy());
 	}
 	
 	public ServerConf getConf(){
